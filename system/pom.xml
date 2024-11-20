@@ -28,6 +28,16 @@
             <groupId>org.sounfury</groupId>
             <artifactId>common-satoken</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-redis</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

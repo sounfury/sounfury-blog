@@ -3,18 +3,62 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.sounfury</groupId>
-        <artifactId>framework</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
 
+    <groupId>org.sounfury</groupId>
     <artifactId>common-bom</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+
+
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>0.0.1</revision>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+<!--            &lt;!&ndash;  自动生成YML配置关联JSON文件  &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-configuration-processor</artifactId>-->
+<!--                <optional>true</optional>-->
+<!--            </dependency>-->
+
+
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-jooq</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-satoken</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-redis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+
+        </dependencies>
+    </dependencyManagement>
 
 </project>

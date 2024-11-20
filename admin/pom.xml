@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sounfury</groupId>
         <artifactId>sounfury_blog</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>blog_admin</artifactId>
@@ -16,5 +16,22 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>blog-system</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+
+    </dependencies>
+
 
 </project>
