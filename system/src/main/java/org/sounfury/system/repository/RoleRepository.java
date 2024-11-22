@@ -24,6 +24,8 @@ import static org.jooq.impl.DSL.noCondition;
 import static org.sounfury.jooq.tables.Permission.PERMISSION;
 import static org.sounfury.jooq.tables.Role.ROLE;
 import static org.sounfury.jooq.tables.RolePermissionMap.ROLE_PERMISSION_MAP;
+import static org.sounfury.jooq.tables.User.USER;
+import static org.sounfury.jooq.tables.UserRoleMap.USER_ROLE_MAP;
 
 @Repository
 public class RoleRepository extends RoleDao {
@@ -33,48 +35,18 @@ public class RoleRepository extends RoleDao {
     super(configuration);
   }
 
-  public List<Role> selectByRoleCodeIn(List<String> roleCodeList) {
-    return ctx().selectFrom(ROLE).where(ROLE.CODE.in(roleCodeList)).fetchInto(Role.class);
-  }
+  /**
+   * 查询某个用户的角色
+   * @param username
+   * @return
+   */
+  public List<Role> queryRolesByUsername (String username){
 
-  public List<Role> selectByRoleIdIn(List<Long> roleIdList) {
-    return ctx().selectFrom(ROLE).where(ROLE.ID.in(roleIdList)).fetchInto(Role.class);
-  }
-
-  public Result<Record> pageFetchBy(PageReqDto pageRequestDto, RoleQueryDto roleQueryDto) {
-    return ctx()
-        .select(asterisk(), DSL.count(ROLE.ID).over().as("total_role"))
-        .from(ROLE)
-        .where(
-            CollectionUtils.isEmpty(roleQueryDto.getRoleIdList())
-                ? noCondition()
-                : ROLE.ID.in(roleQueryDto.getRoleIdList()))
-        .and(
-            roleQueryDto.getRoleId() == null ? noCondition() : ROLE.ID.eq(roleQueryDto.getRoleId()))
-        .and(
-            StringUtils.isEmpty(roleQueryDto.getRoleName())
-                ? noCondition()
-                : ROLE.NAME.like("%" + roleQueryDto.getRoleName() + "%"))
-        .and(
-            StringUtils.isEmpty(roleQueryDto.getRoleCode())
-                ? noCondition()
-                : ROLE.CODE.eq(roleQueryDto.getRoleCode()))
-        .orderBy(pageRequestDto.getSortFields())
-        .limit(pageRequestDto.getSize())
-        .offset(pageRequestDto.getOffset())
-        .fetch();
-  }
-
-  public Result<Record> fetchUniqueRoleWithPermission(UInteger roleId) {
-    return ctx()
-        .select(asterisk())
-        .from(ROLE)
-        .leftJoin(ROLE_PERMISSION_MAP)
-        .on(ROLE.ID.eq(ROLE_PERMISSION_MAP.ROLE_ID))
-        .leftJoin(PERMISSION)
-        .on(ROLE_PERMISSION_MAP.PERMISSION_ID.eq(PERMISSION.ID))
-        .where(ROLE.ID.eq(roleId))
-        .orderBy(ROLE.ID)
-        .fetch();
+    return ctx().select(ROLE.asterisk())
+            .from(ROLE)
+            .leftJoin(USER_ROLE_MAP).on(ROLE.ID.eq(USER_ROLE_MAP.ROLE_ID))
+            .leftJoin(USER).on(USER_ROLE_MAP.USER_ID.eq(USER.ID))
+            .where(USER.USERNAME.eq(username))
+            .fetchInto(Role.class);
   }
 }

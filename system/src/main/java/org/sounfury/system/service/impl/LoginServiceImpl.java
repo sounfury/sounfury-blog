@@ -5,6 +5,7 @@ import org.jooq.types.UInteger;
 import org.redisson.api.RBloomFilter;
 import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
+import org.sounfury.core.utils.StringUtils;
 import org.sounfury.jooq.tables.pojos.User;
 import org.sounfury.jooq.tables.pojos.UserRoleMap;
 import org.sounfury.system.common.enums.RoleEnum;
@@ -35,6 +36,9 @@ public class LoginServiceImpl implements LoginService {
     public void register(UserRegisterReqDTO requestParam) {
         if (checkUsername(requestParam.getUsername())) {
             throw new ClientException(USER_EXIST);
+        }
+        if (StringUtils.isEmpty(requestParam.getNickname())) {
+            requestParam.setNickname(requestParam.getUsername());
         }
         UInteger id = userRepository.insertUser(
                 Objects.requireNonNull(MapstructUtils.convert(requestParam, User.class)));
