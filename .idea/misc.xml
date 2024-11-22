@@ -6,6 +6,8 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/common/common-core/pom.xml" />
+        <option value="$PROJECT_DIR$/system/pom.xml" />
+        <option value="$PROJECT_DIR$/common/common-redis/pom.xml" />
       </list>
     </option>
   </component>
