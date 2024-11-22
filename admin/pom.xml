@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>blog_admin</artifactId>
+    <artifactId>blog-admin</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -27,6 +27,12 @@
         <dependency>
             <groupId>org.sounfury</groupId>
             <artifactId>blog-system</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>blog-portal</artifactId>
             <version>${revision}</version>
         </dependency>
 

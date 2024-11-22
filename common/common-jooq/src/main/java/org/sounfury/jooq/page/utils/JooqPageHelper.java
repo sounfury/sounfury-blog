@@ -3,9 +3,13 @@ package org.sounfury.jooq.page.utils;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
+import org.jooq.types.UByte;
+import org.jooq.types.UInteger;
+import org.jooq.types.ULong;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.page.PageRepDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,11 +68,11 @@ public class JooqPageHelper {
      * @return 分页响应
      */
     public static <R extends Record, T> PageRepDto<List<T>> getPage(
-            SelectHavingStep<R> query,
+            SelectHavingStep<? extends R> query,
             PageReqDto pageRequest,
             DSLContext dsl,
             Class<T> targetClass) {
-        Table<R> subquery = query.asTable("subquery");
+        Table<?> subquery = query.asTable("subquery");
         Long total = dsl.select(DSL.count())
                 .from(subquery)
                 .fetchOne(0, Long.class);
@@ -90,6 +94,7 @@ public class JooqPageHelper {
 
 
     /**
+     * 加聚合函数
      * 执行分页查询（返回指定类型）
      *
      * @param query 原始查询
@@ -97,11 +102,11 @@ public class JooqPageHelper {
      * @param dsl DSLContext实例
      * @param mapper 结果映射函数
      * @param <R> 结果记录类型
-     * @param <T> 目标类型
+ * @param <T> 目标类型
      * @return 分页响应
      */
     public static <R extends Record, T> PageRepDto<List<T>> getPage(
-            SelectHavingStep<R> query,
+            SelectHavingStep<? extends R> query,
             PageReqDto pageRequest,
             DSLContext dsl,
             RecordMapper<R, T> mapper) {
@@ -126,6 +131,8 @@ public class JooqPageHelper {
 
         return new PageRepDto<>(total, records);
     }
+
+
 
     /**
      * 构建带计数的分页查询

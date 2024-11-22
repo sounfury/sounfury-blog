@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>blog_portal</artifactId>
+    <artifactId>blog-portal</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

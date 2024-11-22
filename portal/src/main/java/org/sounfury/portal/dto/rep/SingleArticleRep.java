@@ -7,7 +7,6 @@ import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 import org.sounfury.jooq.tables.pojos.Article;
-import org.sounfury.jooq.tables.pojos.Tag;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,14 +27,17 @@ public class SingleArticleRep {
 
     private String thumbnail;
 
+    private ArticleCategoryDto category;
+
     private UByte isTop;
 
     private ULong viewCount;
 
     private String createBy;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
-    private String updateBy;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
@@ -52,7 +54,6 @@ public class SingleArticleRep {
         this.viewCount = article.getViewCount();
         this.createBy = article.getCreateBy();
         this.createTime = article.getCreateTime();
-        this.updateBy = article.getUpdateBy();
         this.updateTime = article.getUpdateTime();
     }
 }

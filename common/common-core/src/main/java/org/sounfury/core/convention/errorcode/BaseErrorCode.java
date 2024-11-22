@@ -23,6 +23,10 @@ public enum BaseErrorCode implements IErrorCode {
     PASSWORD_SHORT_ERROR("A000121", "密码长度不够"),
     PHONE_VERIFY_ERROR("A000151", "手机格式校验失败"),
 
+    // ========== 二级宏观错误码 用户传递分页错误 ==========
+    USER_PAGE_ERROR("A000130", "分页参数错误"),
+    USER_PAGE_SIZE_ERROR("A000131", "分页大小错误"),
+
     // ========== 二级宏观错误码 系统请求缺少Token ==========
     IDEMPOTENT_TOKEN_NULL_ERROR("A000200", "Token为空"),
     IDEMPOTENT_TOKEN_DELETE_ERROR("A000201", "Token已被使用或失效"),

@@ -2,9 +2,8 @@ package org.sounfury.system.repository;
 
 
 import io.github.linpeilie.Converter;
-import org.jooq.Configuration;
-import org.jooq.DSLContext;
-import org.jooq.RecordMapper;
+import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.jooq.types.UInteger;
 import org.sounfury.jooq.page.PageRepDto;
@@ -34,7 +33,6 @@ import static org.sounfury.jooq.tables.Role.ROLE;
 import static org.sounfury.jooq.tables.RolePermissionMap.ROLE_PERMISSION_MAP;
 import static org.sounfury.jooq.tables.User.USER;
 import static org.sounfury.jooq.tables.UserRoleMap.USER_ROLE_MAP;
-import org.jooq.Record;
 
 @Repository
 public class UserRepository extends UserDao {
@@ -85,6 +83,20 @@ public class UserRepository extends UserDao {
             }
             return dto;
         };
+
+        SelectConditionStep<Record> roleCodes = ctx().select(
+                        USER.asterisk(),
+                        DSL.field("GROUP_CONCAT({0})", String.class, ROLE.CODE)
+                                .as("roleCodes")
+                )
+                .from(USER)
+                .leftJoin(USER_ROLE_MAP)
+                .on(USER.ID.eq(USER_ROLE_MAP.USER_ID))
+                .leftJoin(ROLE)
+                .on(USER_ROLE_MAP.ROLE_ID.eq(ROLE.ID))
+                .where(USER.DEL_FLAG.eq(NOT_DEL_FLAG))
+                .and(USER.ENABLE_STATUS.eq(STATUS_ENABLE));
+
 
         return JooqPageHelper.getPage(
                 ctx().select(

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jooq.SortField;
 import org.jooq.SortOrder;
+import org.sounfury.core.convention.exception.ClientException;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import java.util.regex.Pattern;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.sounfury.core.convention.errorcode.BaseErrorCode.USER_PAGE_ERROR;
+import static org.sounfury.core.convention.errorcode.BaseErrorCode.USER_PAGE_SIZE_ERROR;
 
 @Data
 @NoArgsConstructor
@@ -83,17 +86,18 @@ public class PageReqDto {
   }
 
   private void checkPageAndSize(int page, int size) {
-    if (page < 0) {
-      throw new IllegalArgumentException("Page index must not be less than zero");
+    if (page <=0) {
+      throw new ClientException(USER_PAGE_ERROR);
     }
 
     if (size < 1) {
-      throw new IllegalArgumentException("Page size must not be less than one");
+      throw new ClientException(USER_PAGE_SIZE_ERROR);
     }
   }
 
   public long getOffset() {
-    return (long) page * (long) size;
+    checkPageAndSize(page, size);
+    return (long) (page-1) * (long) size;
   }
 
   public void setSortBy(String sortBy) {

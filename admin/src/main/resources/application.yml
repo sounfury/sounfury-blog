@@ -14,6 +14,8 @@ spring:
   jackson:
       date-format: yyyy-MM-dd HH:mm:ss
       time-zone: Asia/Shanghai
+      serialization:
+        write-dates-as-timestamps: false
 logging:
   level:
     org.jooq: DEBUG  # 将 Jooq 的日志级别设置为 DEBUG
