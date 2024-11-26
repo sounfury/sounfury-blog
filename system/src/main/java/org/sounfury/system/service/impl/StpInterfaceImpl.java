@@ -36,7 +36,7 @@ public class StpInterfaceImpl implements StpInterface{
     public List<String> getRoleList(Object loginId, String loginType) {
         List<String> list = new ArrayList<String>();
 
-        userRepository.fetchUniqueUserDtoWithNestedRolePermissionBy((UInteger) StpUtil.getLoginId())
+        userRepository.fetchUniqueUserDtoWithNestedRolePermissionBy(UInteger.valueOf((String) loginId))
                 .getRoles()
                 .forEach(roleDto -> list.add(roleDto.getCode()));
         return list;

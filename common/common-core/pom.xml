@@ -18,6 +18,13 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -97,10 +104,8 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.17.2</version> <!-- 使用最新版本 -->
         </dependency>
-
-
-
     </dependencies>
+
     <repositories>
         <repository>
             <id>maven_central</id>

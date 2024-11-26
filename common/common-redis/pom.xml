@@ -40,6 +40,17 @@
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-core</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-jooq</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

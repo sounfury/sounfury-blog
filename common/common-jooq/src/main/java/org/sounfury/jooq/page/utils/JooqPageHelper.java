@@ -28,12 +28,12 @@ public class JooqPageHelper {
      * @return 分页响应
      */
     public static <R extends Record> PageRepDto<List<R>> getPage(
-            SelectConditionStep<R> query,
+            SelectHavingStep<? extends R> query,
             PageReqDto pageRequest,
             DSLContext dsl) {
 
         // 1. 将 `query` 转换为子查询
-        TableLike<?> subQuery = query.asTable("subquery");
+        Table<?> subQuery = query.asTable("subquery");
 
         // 2. 使用子查询生成计数SQL
         Long total = dsl.select(DSL.count())
@@ -41,17 +41,16 @@ public class JooqPageHelper {
                 .fetchOne(0, Long.class);
 
 
-        if (total == 0) {
+        if(Objects.isNull(total) || total == 0) {
             return PageRepDto.empty();
         }
-
 
         // 2. 添加排序和分页条件
         List<R> records = query
                 .orderBy(pageRequest.getSortFields())
                 .limit(pageRequest.getSize())
                 .offset(pageRequest.getOffset())
-                .fetch();
+                .fetchInto((Class<R>) Record.class); // 修正：强制类型
 
         return new PageRepDto<>(total, records);
     }

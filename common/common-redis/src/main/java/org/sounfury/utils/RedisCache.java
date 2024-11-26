@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * 粒度更小的缓存工具类
+ */
 @SuppressWarnings(value = {"unchecked", "rawtypes"})
 @Component
 public class RedisCache {

@@ -35,7 +35,9 @@
         <jsoup.version>1.17.2</jsoup.version>
         <easyexcel.version>4.0.3</easyexcel.version>
         <jooq.version>3.17.3</jooq.version>
-
+        <!-- OSS 配置 -->
+        <aws.sdk.version>2.25.15</aws.sdk.version>
+        <aws.crt.version>0.29.13</aws.crt.version>
     </properties>
 
     <dependencies>
@@ -118,6 +120,27 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
+
+
+            <!--  AWS SDK for Java 2.x  -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${aws.sdk.version}</version>
+            </dependency>
+            <!-- 使用AWS基于 CRT 的 S3 客户端 -->
+            <dependency>
+                <groupId>software.amazon.awssdk.crt</groupId>
+                <artifactId>aws-crt</artifactId>
+                <version>${aws.crt.version}</version>
+            </dependency>
+            <!-- 基于 AWS CRT 的 S3 客户端的性能增强的 S3 传输管理器 -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3-transfer-manager</artifactId>
+                <version>${aws.sdk.version}</version>
+            </dependency>
+            <!--短信sms4j-->
 
 
         </dependencies>

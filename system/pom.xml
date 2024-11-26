@@ -38,6 +38,10 @@
             <groupId>org.sounfury</groupId>
             <artifactId>common-redis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-oss</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

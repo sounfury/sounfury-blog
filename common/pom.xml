@@ -9,15 +9,17 @@
         <version>${revision}</version>
     </parent>
 
+
     <artifactId>common</artifactId>
     <packaging>pom</packaging>
     <modules>
         <module>common-bom</module>
+        <module>common-core</module>
         <module>common-jooq</module>
         <module>common-web</module>
-        <module>common-core</module>
         <module>common-satoken</module>
         <module>common-redis</module>
+        <module>common-oss</module>
     </modules>
 
     <properties>

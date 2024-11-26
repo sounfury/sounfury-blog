@@ -18,15 +18,6 @@
 
     <dependencyManagement>
         <dependencies>
-<!--            &lt;!&ndash;  自动生成YML配置关联JSON文件  &ndash;&gt;-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-configuration-processor</artifactId>-->
-<!--                <optional>true</optional>-->
-<!--            </dependency>-->
-
-
-
             <dependency>
                 <groupId>org.sounfury</groupId>
                 <artifactId>common-jooq</artifactId>
@@ -54,6 +45,12 @@
             <dependency>
                 <groupId>org.sounfury</groupId>
                 <artifactId>common-redis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.sounfury</groupId>
+                <artifactId>common-oss</artifactId>
                 <version>${revision}</version>
             </dependency>
 
