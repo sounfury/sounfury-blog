@@ -9,7 +9,7 @@ import org.sounfury.core.convention.result.Results;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.portal.dto.rep.CommentTreeNode;
 import org.sounfury.portal.dto.req.CommentAddReq;
-import org.sounfury.portal.dto.req.CommentPageReq;
+import org.sounfury.portal.dto.req.CommentArticlePageReq;
 import org.sounfury.portal.service.CommentPortalService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,7 +29,7 @@ public class CommentPortalController {
      */
     @SaIgnore
     @GetMapping()
-    public Result<PageRepDto<List<CommentTreeNode>>> getCommentsByArticleId(CommentPageReq commentPageReq) {
+    public Result<PageRepDto<List<CommentTreeNode>>> getCommentsByArticleId(CommentArticlePageReq commentPageReq) {
         return Results.success(commentService.getCommentsByArticleId(commentPageReq));
     }
 

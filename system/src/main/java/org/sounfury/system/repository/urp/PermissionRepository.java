@@ -1,4 +1,4 @@
-package org.sounfury.system.repository;
+package org.sounfury.system.repository.urp;
 
 
 import org.apache.commons.lang3.StringUtils;

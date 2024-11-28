@@ -3,7 +3,6 @@ package org.sounfury.system.dto.urp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jooq.types.UInteger;
 
 import java.util.List;
 
@@ -12,8 +11,8 @@ import java.util.List;
 @Data
 public class PermissionQueryDto {
 
-  private UInteger roleId;
-  private UInteger permissionId;
+  private Long roleId;
+  private Long permissionId;
   private String permissionCode;
   private String permissionName;
   private List<Long> permissionIdList;

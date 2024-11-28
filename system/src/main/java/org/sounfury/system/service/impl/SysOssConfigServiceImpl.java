@@ -47,7 +47,7 @@ public class SysOssConfigServiceImpl implements SysOssConfigService {
 
     @Override
     public SysOssConfigRep queryById(Long ossConfigId) {
-        SysOssConfig sysOssConfig = sysOssConfigRepository.fetchOneByOssConfigId(UInteger.valueOf(ossConfigId));
+        SysOssConfig sysOssConfig = sysOssConfigRepository.fetchOneByOssConfigId(ossConfigId);
         return BeanUtil.copyProperties(sysOssConfig, SysOssConfigRep.class);
     }
 
@@ -117,7 +117,7 @@ public class SysOssConfigServiceImpl implements SysOssConfigService {
     public Boolean deleteWithValidByIds(Collection<Long> ids) {
         List<SysOssConfig> list = CollUtil.newArrayList();
         for (Long configId : ids) {
-            SysOssConfig config = sysOssConfigRepository.fetchOneByOssConfigId(UInteger.valueOf(configId));
+            SysOssConfig config = sysOssConfigRepository.fetchOneByOssConfigId(configId);
             list.add(config);
         }
         if (CollUtil.isNotEmpty(list)) {

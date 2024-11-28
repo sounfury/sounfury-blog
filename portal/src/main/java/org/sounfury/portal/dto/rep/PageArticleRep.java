@@ -22,19 +22,19 @@ import static org.sounfury.jooq.tables.Article.ARTICLE;
 @Data
 public class PageArticleRep {
 
-    private UInteger id;
+    private Long id;
 
     private String title;
 
     private String summary;
 
-    private UInteger categoryId;
+    private Long categoryId;
 
     private String thumbnail;
 
-    private UByte isTop;
+    private Byte isTop;
 
-    private ULong viewCount;
+    private Long viewCount;
 
     private List<TagPortalDto> tags;
 

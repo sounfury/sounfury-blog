@@ -2,7 +2,6 @@ package org.sounfury.portal.dto.rep;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.jooq.types.UInteger;
 
 /**
  * 只获得子分类
@@ -10,7 +9,7 @@ import org.jooq.types.UInteger;
 @Data
 @AllArgsConstructor
 public class ArticleCategoryDto {
-    private UInteger id;
+    private Long id;
     private String name;
 
 }

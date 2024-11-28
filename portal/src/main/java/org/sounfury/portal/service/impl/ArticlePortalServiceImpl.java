@@ -2,7 +2,6 @@ package org.sounfury.portal.service.impl;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.jooq.types.UInteger;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.tables.pojos.Article;
@@ -31,7 +30,7 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
 
     @Override
     public SingleArticleRep getArticleById(Long id) {
-        UInteger articleId = UInteger.valueOf(id);
+        Long articleId = Long.valueOf(id);
         Article article = articleRepository.fetchOneById(articleId);
         List<TagPortalDto> tagPortalDtoList = tagRepository.fetchByArticleId(articleId)
                 .stream()

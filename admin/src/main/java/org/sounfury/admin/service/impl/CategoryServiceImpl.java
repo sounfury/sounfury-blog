@@ -1,18 +1,121 @@
 package org.sounfury.admin.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
+import org.sounfury.admin.dto.req.CategoryAddReq;
+import org.sounfury.admin.dto.req.CategoryUpdateReq;
+import org.sounfury.admin.repository.ArticleAdminRepository;
+import org.sounfury.admin.repository.CategoryAdminRepository;
 import org.sounfury.admin.service.CategoryService;
+import org.sounfury.core.convention.exception.ClientException;
+import org.sounfury.core.utils.MapstructUtils;
+import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.jooq.tables.records.CategoryRecord;
 import org.sounfury.portal.dto.rep.CategoryTreeNode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class CategoryServiceImpl implements CategoryService {
+    private final CategoryAdminRepository categoryAdminRepository;
+    private final ArticleAdminRepository articleAdminRepository;
 
     @Override
     public List<CategoryTreeNode> getAllCategory() {
-        return List.of();
+        List<CategoryRecord> allCategories = categoryAdminRepository.getAllCategories();
+        return buildCategoryTree(allCategories);
+    }
+
+    private List<CategoryTreeNode> buildCategoryTree(
+            List<org.sounfury.jooq.tables.records.CategoryRecord> categoryRecords) {
+        // 将所有分类转换为树节点
+        Map<Long, CategoryTreeNode> nodeMap = categoryRecords.stream()
+                .collect(Collectors.toMap(
+                        org.sounfury.jooq.tables.records.CategoryRecord::getId,
+                        record -> new CategoryTreeNode(
+                                record.getId(),
+                                record.getName(),
+                                record.getPid(),
+                                record.getDescription()
+                        )
+                ));
+        List<CategoryTreeNode> tree = new ArrayList<>();
+        for (CategoryTreeNode node : nodeMap.values()) {
+            if (node.getPid() == null) {
+                // 没有父分类，加入根节点
+                tree.add(node);
+            } else {
+                CategoryTreeNode parent = nodeMap.get(node.getPid());
+                if (parent != null) {
+                    parent.getChildren()
+                            .add(node);
+                }
+            }
+        }
+
+        return tree;
+    }
+
+    @Override
+    public void addCategory(CategoryAddReq categoryAddReq) {
+        Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
+        Object loginId = StpUtil.getLoginId();
+        long userId = Long.parseLong(loginId.toString());
+        convert.setCreateBy(userId);
+        convert.setUpdateBy(userId);
+        categoryAdminRepository.insert(convert);
+
+    }
+
+    @Override
+    public void updateCategory(CategoryUpdateReq categoryAddReq) {
+        Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
+        Object loginId = StpUtil.getLoginId();
+        long userId = Long.parseLong(loginId.toString());
+        convert.setUpdateBy(userId);
+        categoryAdminRepository.insert(convert);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteCategory(Long id) {
+        //级联删除，把所有子分类也删除
+        //先查询出所有子分类
+        List<Long> allChildIds = buildChildrenTree(id);
+        //删除
+        allChildIds.add(id);
+        categoryAdminRepository.deleteBatchByIds(allChildIds);
+        //删除分类和文章的关联关系,即更新文章的分类id为默认分类
+        articleAdminRepository.updateCategoryToDefault(allChildIds);
+
+    }
+
+    @Override
+    public boolean isExist(Long categoryId) {
+        return categoryAdminRepository.fetchById(categoryId) != null;
+    }
+
+    private List<Long> buildChildrenTree(Long pid) {
+        List<Category> directChildren = categoryAdminRepository.fetchByPid(pid);
+
+        // 空值和空列表检查
+        if (directChildren == null || directChildren.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Long> directChildIds = directChildren.stream()
+                .map(Category::getId)
+                .toList();
+
+        Set<Long> allChildIds = new HashSet<>(directChildIds);
+
+        for (Long childId : directChildIds) {
+            allChildIds.addAll(buildChildrenTree(childId));
+        }
+        return new ArrayList<>(allChildIds);
     }
 }

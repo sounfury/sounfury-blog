@@ -2,12 +2,13 @@ package org.sounfury.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
 import org.redisson.api.RMap;
 import org.sounfury.core.utils.SpringUtils;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,9 +29,24 @@ public class CacheUtils {
      * @param cacheNames 缓存组名称
      */
     public static Set<Object> keys(String cacheNames) {
-        RMap<Object, Object> rmap = (RMap<Object, Object>) CACHE_MANAGER.getCache(cacheNames).getNativeCache();
+        RMap<Object, Object> rmap = (RMap<Object, Object>) CACHE_MANAGER.getCache(cacheNames)
+                .getNativeCache();
         return rmap.keySet();
     }
+
+
+    /**
+     * 获取缓存组内所有的键值对
+     *
+     * @param cacheNames 缓存组名称
+     * @return 键值对集合
+     */
+    public static Map<Object, Object> getAll(String cacheNames) {
+        RMap<Object, Object> rmap = (RMap<Object, Object>) CACHE_MANAGER.getCache(cacheNames)
+                .getNativeCache();
+        return new HashMap<>(rmap);
+    }
+
 
     /**
      * 获取缓存值
@@ -39,7 +55,8 @@ public class CacheUtils {
      * @param key        缓存key
      */
     public static <T> T get(String cacheNames, Object key) {
-        Cache.ValueWrapper wrapper = CACHE_MANAGER.getCache(cacheNames).get(key);
+        Cache.ValueWrapper wrapper = CACHE_MANAGER.getCache(cacheNames)
+                .get(key);
         return wrapper != null ? (T) wrapper.get() : null;
     }
 
@@ -51,7 +68,8 @@ public class CacheUtils {
      * @param value      缓存值
      */
     public static void put(String cacheNames, Object key, Object value) {
-        CACHE_MANAGER.getCache(cacheNames).put(key, value);
+        CACHE_MANAGER.getCache(cacheNames)
+                .put(key, value);
     }
 
     /**
@@ -61,7 +79,8 @@ public class CacheUtils {
      * @param key        缓存key
      */
     public static void evict(String cacheNames, Object key) {
-        CACHE_MANAGER.getCache(cacheNames).evict(key);
+        CACHE_MANAGER.getCache(cacheNames)
+                .evict(key);
     }
 
     /**
@@ -70,7 +89,8 @@ public class CacheUtils {
      * @param cacheNames 缓存组名称
      */
     public static void clear(String cacheNames) {
-        CACHE_MANAGER.getCache(cacheNames).clear();
+        CACHE_MANAGER.getCache(cacheNames)
+                .clear();
     }
 
 }

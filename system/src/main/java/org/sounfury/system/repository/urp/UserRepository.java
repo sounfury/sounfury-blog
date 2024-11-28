@@ -1,11 +1,10 @@
-package org.sounfury.system.repository;
+package org.sounfury.system.repository.urp;
 
 
 import io.github.linpeilie.Converter;
-import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
 import org.sounfury.jooq.tables.daos.UserDao;
@@ -48,7 +47,7 @@ public class UserRepository extends UserDao {
         this.converter = converter;
     }
 
-    public UInteger insertUser(User user) {
+    public Long insertUser(User user) {
         return ctx().insertInto(USER)
                 .set(USER.USERNAME, user.getUsername())
                 .set(USER.PASSWORD, user.getPassword())
@@ -101,7 +100,8 @@ public class UserRepository extends UserDao {
         return JooqPageHelper.getPage(
                 ctx().select(
                                 USER.asterisk(),
-                                DSL.field("GROUP_CONCAT({0})", String.class, ROLE.CODE).as("roleCodes")
+                                DSL.field("GROUP_CONCAT({0})", String.class, ROLE.CODE)
+                                        .as("roleCodes")
                         )
                         .from(USER)
                         .leftJoin(USER_ROLE_MAP)
@@ -118,8 +118,7 @@ public class UserRepository extends UserDao {
     }
 
 
-
-    public UserRolePermissionDto fetchUniqueUserDtoWithNestedRolePermissionBy(UInteger userId) {
+    public UserRolePermissionDto fetchUniqueUserDtoWithNestedRolePermissionBy(Long userId) {
         return ctx()
                 .select(
                         USER.asterisk(),

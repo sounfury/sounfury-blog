@@ -1,42 +1,43 @@
 package org.sounfury.admin.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jooq.types.UInteger;
+import org.sounfury.admin.dto.req.CommentPageReq;
+import org.sounfury.admin.repository.CommentAdminRepository;
 import org.sounfury.admin.service.CommentService;
-import org.sounfury.core.utils.MapstructUtils;
 import org.sounfury.jooq.page.PageRepDto;
-import org.sounfury.jooq.tables.pojos.Comment;
 import org.sounfury.jooq.tables.records.CommentRecord;
 import org.sounfury.portal.dto.rep.CommentTreeNode;
-import org.sounfury.portal.dto.req.CommentAddReq;
-import org.sounfury.portal.dto.req.CommentPageReq;
-import org.sounfury.portal.repository.CommentPortalRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.sounfury.core.constant.Constants.STATUS_DISABLE;
+import static org.sounfury.core.constant.Constants.STATUS_ENABLE;
+
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-    private final CommentPortalRepository commentRepository;
-
+    private final CommentAdminRepository commentRepository;
 
     @Override
-    public PageRepDto<List<CommentTreeNode>> getCommentsByArticleId(CommentPageReq commentPageReq) {
+    public PageRepDto<List<CommentTreeNode>> listComments(CommentPageReq commentPageReq) {
         PageRepDto<List<CommentRecord>> comments = commentRepository.getComments(commentPageReq);
         List<CommentTreeNode> commentTree = buildCommentTree(comments.getData());
         return new PageRepDto<>(comments.getTotal(), commentTree);
     }
 
     @Override
-    @Transactional
-    public void addComment(CommentAddReq commentAddReq) {
-        Comment convert = MapstructUtils.convert(commentAddReq, Comment.class);
-        commentRepository.insert(convert);
+    public void auditComment(Long commentId, Boolean pass) {
+        Byte status = pass ? STATUS_ENABLE : STATUS_DISABLE;
+        commentRepository.updateCommentStatus(commentId, status);
+    }
+
+    @Override
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteCommentById(commentId);
     }
 
     private List<CommentTreeNode> buildCommentTree(List<CommentRecord> allComments) {
@@ -44,15 +45,15 @@ public class CommentServiceImpl implements CommentService {
         List<CommentTreeNode> result = new ArrayList<>();
 
         // 将所有评论按 ID 映射
-        Map<UInteger, CommentTreeNode> commentMap = allComments.stream()
+        Map<Long, CommentTreeNode> commentMap = allComments.stream()
                 .collect(Collectors.toMap(CommentRecord::getId,
                         record -> new CommentTreeNode(record.getId(), record.getUserId(), record.getParentId(),
                                 record.getTopCommentId(), record.getContent(), record.getLikeCount(),
-                                record.getCreateTime(), new ArrayList<>())));
+                                record.getCreateTime(), record.getEnableStatus(), new ArrayList<>())));
 
         // 遍历所有评论，构造父子关系
         for (CommentRecord record : allComments) {
-            UInteger parentId = record.getParentId();
+            Long parentId = record.getParentId();
             CommentTreeNode currentNode = commentMap.get(record.getId());
             if (parentId == null) {
                 // 父评论，直接加入结果集

@@ -43,7 +43,7 @@ public class SysOssServiceImpl implements SysOssService {
 
     @Override
     public SysOssDto getById(Long ossId) {
-        SysOss sysOss = sysOssRepository.fetchOneByOssId(UInteger.valueOf(ossId));
+        SysOss sysOss = sysOssRepository.fetchOneByOssId(ossId);
         return BeanUtil.copyProperties(sysOss, SysOssDto.class);
     }
 

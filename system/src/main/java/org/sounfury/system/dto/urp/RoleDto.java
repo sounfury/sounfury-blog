@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class RoleDto {
-  private UInteger id;
+  private Long id;
   private String code;
   private String name;
   List<PermissionDto> permissions = new LinkedList<>();

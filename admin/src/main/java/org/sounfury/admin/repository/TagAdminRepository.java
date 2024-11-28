@@ -3,7 +3,6 @@ package org.sounfury.admin.repository;
 import cn.dev33.satoken.stp.StpUtil;
 import org.jooq.Configuration;
 import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
 import org.sounfury.jooq.tables.daos.TagDao;
 import org.sounfury.jooq.tables.pojos.Tag;
 import org.sounfury.portal.dto.rep.TagsQueryRep;
@@ -27,7 +26,7 @@ public class TagAdminRepository extends TagDao {
     /**
      * 根据文章id查询该文章下的标签
      */
-    public List<Tag> fetchByArticleId(UInteger articleId) {
+    public List<Tag> fetchByArticleId(Long articleId) {
         return ctx().select(TAG.asterisk())
                 .from(TAG)
                 .leftJoin(ARTICLE_TAG)
@@ -55,15 +54,20 @@ public class TagAdminRepository extends TagDao {
     /**
      * 插入或维护标签以及文章标签关联表
      */
-    public void insertTags(UInteger articleId,List<String> tags){
-        UInteger userId= (UInteger) StpUtil.getLoginId();
+    public void insertTags(Long articleId,List<String> tags){
+        Long userId= Long.parseLong(StpUtil.getLoginId().toString());
+
+        //先删除这个文章id下的所有标签
+        ctx().delete(ARTICLE_TAG)
+                .where(ARTICLE_TAG.ARTICLE_ID.eq(articleId))
+                .execute();
 
         tags.forEach(tag -> {
-            UInteger tagId = ctx().select(TAG.ID)
+            Long tagId = ctx().select(TAG.ID)
                     .from(TAG)
                     .where(TAG.NAME.eq(tag))
-                    .fetchOneInto(UInteger.class);
-            //先看看标签是否存在，不存在则插入
+                    .fetchOneInto(Long.class);
+            //先看看标签表里是否存在，不存在则插入
             if (tagId == null) {
                 tagId = ctx().insertInto(TAG, TAG.NAME,TAG.CREATE_BY,TAG.UPDATE_BY)
                         .values(tag,userId,userId)
@@ -71,6 +75,7 @@ public class TagAdminRepository extends TagDao {
                         .fetchOne()
                         .getId();
             }
+            //再插入文章标签关联表
             ctx().insertInto(ARTICLE_TAG, ARTICLE_TAG.ARTICLE_ID, ARTICLE_TAG.TAG_ID)
                     .values(articleId, tagId)
                     .execute();

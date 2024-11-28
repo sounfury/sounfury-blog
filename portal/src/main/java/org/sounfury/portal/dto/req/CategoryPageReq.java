@@ -8,6 +8,6 @@ import org.sounfury.jooq.page.PageReqDto;
 @Data
 public class CategoryPageReq extends PageReqDto {
 
-    private Integer categoryId;
+    private Long categoryId;
 
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
-    private TagPortalRepository tagRepository;
+    private final TagPortalRepository tagRepository;
 
     @Override
     public List<TagsQueryRep> getAllTags() {

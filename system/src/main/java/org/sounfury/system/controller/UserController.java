@@ -2,14 +2,13 @@ package org.sounfury.system.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import lombok.RequiredArgsConstructor;
-import org.jooq.types.UInteger;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.system.dto.rep.UserPageQueryRepDTO;
 import org.sounfury.system.dto.req.UserPageQueryReqDTO;
 import org.sounfury.system.dto.req.UserRoleEditReq;
-import org.sounfury.system.repository.UserRepository;
+import org.sounfury.system.repository.urp.UserRepository;
 import org.sounfury.system.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +35,7 @@ public class UserController {
 
     @DeleteMapping("/user")
     public Result<Void> deleteUser(@RequestParam Long userId) {
-        UInteger uId = UInteger.valueOf(userId);
-        userService.deleteUser(uId);
+        userService.deleteUser(userId);
         return Results.success();
     }
 

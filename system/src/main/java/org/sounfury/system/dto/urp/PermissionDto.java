@@ -9,7 +9,7 @@ import org.jooq.types.UInteger;
 @NoArgsConstructor
 @Data
 public class PermissionDto {
-  private UInteger id;
+  private Long id;
   private String code;
   private String name;
 }

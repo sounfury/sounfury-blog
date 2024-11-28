@@ -1,11 +1,10 @@
 package org.sounfury.system.dto.rep;
 
-import org.jooq.types.UInteger;
 
 import java.time.LocalDateTime;
 
 public class SysOssConfigRep {
-    private UInteger ossConfigId;
+    private Long ossConfigId;
     private String configKey;
     private String accessKey;
     private String secretKey;
@@ -16,9 +15,9 @@ public class SysOssConfigRep {
     private Byte isHttps;
     private String region;
     private Byte accessPolicy;
-    private UInteger createBy;
+    private Long createBy;
     private LocalDateTime createTime;
-    private UInteger updateBy;
+    private Long updateBy;
     private LocalDateTime updateTime;
     private String remark;
     private Byte enableStatus;

@@ -26,7 +26,7 @@ public class TagPortalRepository extends TagDao {
     /**
      * 根据文章id查询该文章下的标签
      */
-    public List<Tag> fetchByArticleId(UInteger articleId) {
+    public List<Tag> fetchByArticleId(Long articleId) {
         return ctx().select(TAG.asterisk())
                 .from(TAG)
                 .leftJoin(ARTICLE_TAG)

@@ -16,7 +16,7 @@ import org.sounfury.jooq.tables.pojos.SysOssConfig;
 @AutoMapper(target = SysOssConfig.class)
 public class SysOssConfigReq {
     @NotNull(message = "主键不能为空")
-    private UInteger ossConfigId;
+    private Long ossConfigId;
     @NotBlank(message = "配置key不能为空")
     @Size(min = 2, max = 100, message = "configKey长度必须介于{min}和{max} 之间")
     private String configKey;

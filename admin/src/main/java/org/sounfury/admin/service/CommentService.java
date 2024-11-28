@@ -1,18 +1,27 @@
 package org.sounfury.admin.service;
 
+import org.sounfury.admin.dto.req.CommentPageReq;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.portal.dto.rep.CommentTreeNode;
-import org.sounfury.portal.dto.req.CommentAddReq;
-import org.sounfury.portal.dto.req.CommentPageReq;
+import org.sounfury.portal.dto.req.CommentArticlePageReq;
 
 import java.util.List;
 
 public interface CommentService {
 
     /**
-     * 查询文章下的评论
+     * 分页查询评论
      */
-    PageRepDto<List<CommentTreeNode>> getCommentsByArticleId(CommentPageReq commentPageReq);
+    PageRepDto<List<CommentTreeNode>> listComments(CommentPageReq commentPageReq);
 
-    void addComment(CommentAddReq commentAddReq);
+
+    /**
+     * 审核评论
+     */
+    void auditComment(Long commentId, Boolean pass);
+
+    /**
+     * 删除评论
+     */
+    void deleteComment(Long commentId);
 }

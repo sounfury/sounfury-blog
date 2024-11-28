@@ -53,7 +53,7 @@ public class ArticlePortalRepository extends ArticleDao {
                         .from(ARTICLE)
                         .where(ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG))
                         .and(ARTICLE.ENABLE_STATUS.eq(STATUS_ENABLE))
-                        .and(ARTICLE.CATEGORY_ID.eq(UInteger.valueOf(pageReqDto.getCategoryId()))),
+                        .and(ARTICLE.CATEGORY_ID.eq(pageReqDto.getCategoryId())),
                 pageReqDto,
                 dsl,
                 PageArticleRep.MAPPER);
@@ -75,7 +75,7 @@ public class ArticlePortalRepository extends ArticleDao {
                                         .from(ARTICLE)
                                         .join(ARTICLE_TAG)
                                         .on(ARTICLE.ID.eq(ARTICLE_TAG.ARTICLE_ID))
-                                        .where(ARTICLE_TAG.TAG_ID.eq(UInteger.valueOf(pageReqDto.getTagId())))
+                                        .where(ARTICLE_TAG.TAG_ID.eq(pageReqDto.getTagId()))
                         )),
                 pageReqDto,
                 dsl,

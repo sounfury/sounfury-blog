@@ -28,5 +28,5 @@ public interface UserService {
     void editUserRole(UserRoleEditReq requestParam);
 
 
-    void deleteUser(UInteger uId);
+    void deleteUser(Long uId);
 }

@@ -7,6 +7,6 @@ import org.jooq.types.UInteger;
 @AllArgsConstructor
 @Data
 public class TagPortalDto {
-    private UInteger id;
+    private Long id;
     private String name;
 }

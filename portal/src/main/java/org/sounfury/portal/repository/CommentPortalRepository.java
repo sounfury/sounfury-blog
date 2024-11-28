@@ -3,12 +3,11 @@ package org.sounfury.portal.repository;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
-import org.jooq.types.UInteger;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
 import org.sounfury.jooq.tables.daos.CommentDao;
 import org.sounfury.jooq.tables.records.CommentRecord;
-import org.sounfury.portal.dto.req.CommentPageReq;
+import org.sounfury.portal.dto.req.CommentArticlePageReq;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class CommentPortalRepository extends CommentDao {
     /**
      * 查询某一文章下所有评论
      */
-    public PageRepDto<List<CommentRecord>> getComments(CommentPageReq req) {
+    public PageRepDto<List<CommentRecord>> getComments(CommentArticlePageReq req) {
         SelectConditionStep<CommentRecord> and = ctx()
                 .selectFrom(COMMENT)
                 .where(COMMENT.ARTICLE_ID.eq(req.getArticleId())) // 限制某篇文章
@@ -44,7 +43,7 @@ public class CommentPortalRepository extends CommentDao {
     /**
      * // 查询文章下的所有一级评论记录（parent_id 为空或）
      */
-    public PageRepDto<List<CommentRecord>> getParentComments(CommentPageReq req) {
+    public PageRepDto<List<CommentRecord>> getParentComments(CommentArticlePageReq req) {
         SelectConditionStep<CommentRecord> and = ctx()
                 .selectFrom(COMMENT)
                 .where(COMMENT.ARTICLE_ID.eq(req.getArticleId())) // 限制某篇文章
@@ -59,7 +58,7 @@ public class CommentPortalRepository extends CommentDao {
     /**
      * 查询某个评论的所有子评论
      */
-    public List<CommentRecord> getChildrenComments(UInteger parentId) {
+    public List<CommentRecord> getChildrenComments(Long parentId) {
         return ctx()
                 .selectFrom(COMMENT)
                 .where(COMMENT.PARENT_ID.eq(parentId))

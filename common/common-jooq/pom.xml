@@ -50,7 +50,6 @@
         </dependency>
 
 
-
     </dependencies>
 
 
@@ -79,6 +78,12 @@
                         <database>
                             <name>org.jooq.meta.mysql.MySQLDatabase</name>
                             <inputSchema>blog</inputSchema>
+                                <forcedTypes>
+                                    <forcedType>
+                                        <name>BIGINT</name>
+                                        <includeTypes>.*INT\s*UNSIGNED.*</includeTypes>
+                                    </forcedType>
+                            </forcedTypes>
                         </database>
                         <target>
                             <packageName>org.sounfury.jooq</packageName>

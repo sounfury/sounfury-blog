@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jooq.types.UByte;
-import org.jooq.types.UInteger;
 import org.jooq.types.ULong;
 import org.sounfury.jooq.tables.pojos.Article;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class SingleArticleRep {
-    private UInteger id;
+    private Long id;
 
     private String title;
 
@@ -23,15 +22,15 @@ public class SingleArticleRep {
 
     private String summary;
 
-    private UInteger categoryId;
+    private Long categoryId;
 
     private String thumbnail;
 
     private ArticleCategoryDto category;
 
-    private UByte isTop;
+    private Byte isTop;
 
-    private ULong viewCount;
+    private Long viewCount;
 
     private String createBy;
 

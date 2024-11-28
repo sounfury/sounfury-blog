@@ -1,8 +1,6 @@
 package org.sounfury.system.common.enums;
 
 import lombok.Getter;
-import org.jooq.types.UInteger;
-
 import java.util.Objects;
 
 // 定义角色枚举类
@@ -10,23 +8,23 @@ import java.util.Objects;
 public enum RoleEnum {
 
     // 枚举值，包含 id 和 code
-    ADMIN(UInteger.valueOf(1), "ADMIN"),
-    EDITOR(UInteger.valueOf(2), "EDITOR"),
-    READER(UInteger.valueOf(3), "READER");
+    ADMIN(1L, "ADMIN"),
+    EDITOR(2L, "EDITOR"),
+    READER(3L, "READER");
 
     // 获取 id
-    private final UInteger id;
+    private final Long id;
     // 获取 code
     private final String code;
 
     // 构造方法
-    RoleEnum(UInteger id, String code) {
+    RoleEnum(Long id, String code) {
         this.id = id;
         this.code = code;
     }
 
     // 根据 id 获取对应的枚举
-    public static RoleEnum fromId(UInteger id) {
+    public static RoleEnum fromId(Long id) {
         for (RoleEnum role : RoleEnum.values()) {
             if (Objects.equals(role.getId(), id)) {
                 return role;

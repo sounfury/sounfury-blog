@@ -1,7 +1,6 @@
 package org.sounfury.system.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jooq.types.UInteger;
 import org.redisson.api.RBloomFilter;
 import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
@@ -12,8 +11,8 @@ import org.sounfury.system.common.enums.RoleEnum;
 import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserLoginReqDTO;
 import org.sounfury.system.dto.req.UserRegisterReqDTO;
-import org.sounfury.system.repository.UserRepository;
-import org.sounfury.system.repository.UserRoleMapRepository;
+import org.sounfury.system.repository.urp.UserRepository;
+import org.sounfury.system.repository.urp.UserRoleMapRepository;
 import org.sounfury.system.service.LoginService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +39,7 @@ public class LoginServiceImpl implements LoginService {
         if (StringUtils.isEmpty(requestParam.getNickname())) {
             requestParam.setNickname(requestParam.getUsername());
         }
-        UInteger id = userRepository.insertUser(
+        Long id = userRepository.insertUser(
                 Objects.requireNonNull(MapstructUtils.convert(requestParam, User.class)));
         userRoleMapRepository.insert(new UserRoleMap().setUserId(id)
                 .setRoleId(RoleEnum.fromCode("EDITOR")
@@ -53,8 +52,7 @@ public class LoginServiceImpl implements LoginService {
         if (user == null) {
             throw new ClientException(USER_NULL);
         }
-        return user.getId()
-                .longValue();
+        return user.getId();
 
     }
 

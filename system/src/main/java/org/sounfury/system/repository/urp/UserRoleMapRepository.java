@@ -1,8 +1,7 @@
-package org.sounfury.system.repository;
+package org.sounfury.system.repository.urp;
 
 import org.jooq.Configuration;
 
-import org.jooq.types.UInteger;
 import org.sounfury.jooq.tables.daos.UserRoleMapDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -20,7 +19,7 @@ public class UserRoleMapRepository extends UserRoleMapDao {
   }
 
   @Transactional
-  public void deleteByUserId(UInteger userId) {
+  public void deleteByUserId(Long userId) {
     ctx().deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.eq(userId)).execute();
   }
 }
