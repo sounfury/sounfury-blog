@@ -31,9 +31,9 @@ public interface SysConfigService {
     Map<String,String> getAllConfig();
 
     /**
-     * 根据配置名变更配置
+     * 根据配置key修改配置
      */
-    void updateSysConfigByConfigKey(String ByConfigKey, String value);
+    String updateSysConfigByConfigKey(String ByConfigKey, String value);
 
     /**
      * 检测配置是否存在

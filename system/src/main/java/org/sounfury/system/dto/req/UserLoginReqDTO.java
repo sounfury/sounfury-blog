@@ -1,6 +1,7 @@
 package org.sounfury.system.dto.req;
 
 import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.sounfury.jooq.tables.pojos.User;
@@ -12,13 +13,13 @@ public class UserLoginReqDTO {
     /**
      * 用户名
      */
-    @NotNull
+    @NotBlank
     private String username;
 
     /**
      * 密码
      */
-    @NotNull
+    @NotBlank
     private String password;
 
     /**

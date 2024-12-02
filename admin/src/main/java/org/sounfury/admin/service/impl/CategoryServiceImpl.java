@@ -7,7 +7,6 @@ import org.sounfury.admin.dto.req.CategoryUpdateReq;
 import org.sounfury.admin.repository.ArticleAdminRepository;
 import org.sounfury.admin.repository.CategoryAdminRepository;
 import org.sounfury.admin.service.CategoryService;
-import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
 import org.sounfury.jooq.tables.pojos.Category;
 import org.sounfury.jooq.tables.records.CategoryRecord;
@@ -63,8 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void addCategory(CategoryAddReq categoryAddReq) {
         Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
-        Object loginId = StpUtil.getLoginId();
-        long userId = Long.parseLong(loginId.toString());
+        long userId = StpUtil.getLoginIdAsLong();
         convert.setCreateBy(userId);
         convert.setUpdateBy(userId);
         categoryAdminRepository.insert(convert);
@@ -74,8 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void updateCategory(CategoryUpdateReq categoryAddReq) {
         Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
-        Object loginId = StpUtil.getLoginId();
-        long userId = Long.parseLong(loginId.toString());
+        long userId = StpUtil.getLoginIdAsLong();
         convert.setUpdateBy(userId);
         categoryAdminRepository.insert(convert);
     }

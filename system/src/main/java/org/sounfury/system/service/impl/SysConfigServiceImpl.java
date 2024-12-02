@@ -12,10 +12,14 @@ import org.sounfury.utils.CacheUtils;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.sounfury.core.constant.DefaultConfigKey.SYS_CONFIG_THEME_KEY;
+import static org.sounfury.core.constant.ThemeConstant.ENABLED_THEME;
 
 @RequiredArgsConstructor
 @Service
@@ -64,9 +68,17 @@ public class SysConfigServiceImpl implements SysConfigService {
 
 
     @Override
+    @Transactional
     @CachePut(cacheNames = CacheNames.SYS_CONFIG, key = "#configKey")
-    public void updateSysConfigByConfigKey(String configKey, String value) {
+    public String updateSysConfigByConfigKey(String configKey, String value) {
         sysConfigRepository.updateConfigValueByConfigKey(configKey, value);
+        if (configKey.equals(SYS_CONFIG_THEME_KEY)) {
+            CacheUtils.evict(CacheNames.SYS_THEME , ENABLED_THEME);
+            //更新后重设
+            CacheUtils.put(CacheNames.SYS_THEME , ENABLED_THEME, configKey);
+        }
+
+        return value;
     }
 
     @Override

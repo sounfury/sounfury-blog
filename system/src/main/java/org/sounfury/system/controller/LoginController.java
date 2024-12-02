@@ -1,39 +1,58 @@
 package org.sounfury.system.controller;
 
+import cn.dev33.satoken.SaManager;
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.lang.UUID;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
+import org.sounfury.system.dto.rep.UserInfo;
 import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserLoginReqDTO;
 import org.sounfury.system.dto.req.UserRegisterReqDTO;
+import org.sounfury.system.model.LoginUser;
 import org.sounfury.system.service.LoginService;
+import org.sounfury.system.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+import static org.sounfury.core.constant.CacheNames.LOGIN_USER;
+
 @RestController
-@RequestMapping("/api/sys")
 @RequiredArgsConstructor
 public class LoginController {
     private final LoginService loginService;
+    private final UserService userService;
 
     /**
      * 登录
+     *
      * @param requestParam
      */
     @SaIgnore
     @PostMapping("/login")
     public Result<String> login(UserLoginReqDTO requestParam) {
-        StpUtil.login(loginService.login(requestParam), requestParam.getRememberMe());
+        LoginUser loginUser = (LoginUser) StpUtil.getSession()
+                .get(LOGIN_USER + requestParam.getUsername());
+
+        if (loginUser != null) {
+            //如果用户已经登录，直接返回登录成功
+            return Results.success("登录成功");
+        }
+
+        Long userId = loginService.login(requestParam);
+        if (StpUtil.isLogin() && !StpUtil.getLoginId()
+                .equals(userId)) {
+            StpUtil.logout();
+        }
+        StpUtil.login(userId, requestParam.getRememberMe());
         return Results.success("登录成功");
     }
 
     /**
-     *
      * @param requestParam
      * @return
      */
@@ -46,6 +65,7 @@ public class LoginController {
 
     /**
      * 检查用户名是否存在
+     *
      * @param username
      * @return True: 存在 False: 不存在
      */
@@ -63,6 +83,19 @@ public class LoginController {
     public Result<Void> logout() {
         StpUtil.logout();
         return Results.success();
+    }
+
+    /**
+     * 获取登陆用户详细信息
+     */
+    @GetMapping("/getInfo")
+    public Result<UserInfo> getInfo() {
+        Object object = SaManager.getSaTokenDao()
+                .getObject(LOGIN_USER);
+        List<String> roleList = StpUtil.getRoleList();
+        List<String> permissionList = StpUtil.getPermissionList();
+
+        return Results.success(new UserInfo((LoginUser) object, roleList, permissionList));
     }
 
 
@@ -84,8 +117,6 @@ public class LoginController {
         loginService.resetPassword(username);
         return Results.success();
     }
-
-
 
 
 }

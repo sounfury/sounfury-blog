@@ -1,12 +1,14 @@
 package org.sounfury.system.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.jooq.types.UInteger;
 import org.redisson.api.RBloomFilter;
 import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.system.dto.rep.UserPageQueryRepDTO;
 import org.sounfury.system.dto.req.UserPageQueryReqDTO;
 import org.sounfury.system.dto.req.UserRoleEditReq;
+import org.sounfury.system.dto.urp.UserRolePermissionDto;
 import org.sounfury.system.repository.urp.RoleRepository;
 import org.sounfury.system.repository.urp.UserRepository;
 import org.sounfury.system.repository.urp.UserRoleMapRepository;
@@ -23,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserRoleMapRepository userRoleMapRepository;
     private final RoleRepository roleRepository;
-    private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+
 
 
     @Override
@@ -48,5 +50,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long uId) {
         userRepository.deleteById(uId);
         userRoleMapRepository.deleteByUserId(uId);
+    }
+
+    @Override
+    public UserRolePermissionDto getUserInfo(Long userId) {
+        return userRepository.fetchUniqueUserDtoWithNestedRolePermissionBy(userId);
     }
 }

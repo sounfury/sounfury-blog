@@ -3,6 +3,7 @@ package org.sounfury.system.service;
 import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserLoginReqDTO;
 import org.sounfury.system.dto.req.UserRegisterReqDTO;
+import org.sounfury.system.dto.urp.UserRolePermissionDto;
 
 public interface LoginService {
     /**
@@ -39,5 +40,6 @@ public interface LoginService {
      * @param username
      */
     void resetPassword(String username);
+
 
 }

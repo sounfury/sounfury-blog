@@ -18,11 +18,8 @@ import java.util.stream.Collectors;
 @Data
 public class UserRolePermissionDto {
     private Long id;
-    private String username;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
 
-    private Boolean enable;
+    private Boolean enableStatus;
     private List<RoleDto> roles = new LinkedList<>();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -34,6 +31,4 @@ public class UserRolePermissionDto {
                         .stream())
                 .collect(Collectors.toSet());
     }
-
-
 }

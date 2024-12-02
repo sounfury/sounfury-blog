@@ -16,15 +16,15 @@ public class CommentAddReq {
     /**
      * 评论的文章 ID
      */
-    private UInteger articleId;
+    private Long articleId;
     /**
      * 评论的用户 ID
      */
-    private UInteger userId;
+    private Long userId;
     /**
      * 评论的直接父评论 ID
      */
-    private UInteger parentId;
+    private Long parentId;
     /**
      * 评论的内容
      */
@@ -33,5 +33,5 @@ public class CommentAddReq {
     /**
      * 评论的顶级评论 ID
      */
-    private UInteger topCommentId;
+    private Long topCommentId;
 }

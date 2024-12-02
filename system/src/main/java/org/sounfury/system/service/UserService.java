@@ -5,6 +5,7 @@ import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.system.dto.rep.UserPageQueryRepDTO;
 import org.sounfury.system.dto.req.UserPageQueryReqDTO;
 import org.sounfury.system.dto.req.UserRoleEditReq;
+import org.sounfury.system.dto.urp.UserRolePermissionDto;
 
 import java.util.List;
 
@@ -27,6 +28,15 @@ public interface UserService {
      */
     void editUserRole(UserRoleEditReq requestParam);
 
-
+    /**
+     * 删除用户
+     * @param uId
+     */
     void deleteUser(Long uId);
+
+
+    /**
+     * 获取用户info
+     */
+    UserRolePermissionDto getUserInfo(Long userId);
 }

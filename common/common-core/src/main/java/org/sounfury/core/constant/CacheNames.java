@@ -46,4 +46,9 @@ public interface CacheNames {
      */
     String ONLINE_TOKEN = "online_tokens";
 
+    /**
+     * 登陆用户
+     */
+    String LOGIN_USER = "token:login:user:";
+
 }
