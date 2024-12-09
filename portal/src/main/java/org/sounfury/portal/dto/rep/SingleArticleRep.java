@@ -3,8 +3,6 @@ package org.sounfury.portal.dto.rep;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.jooq.types.UByte;
-import org.jooq.types.ULong;
 import org.sounfury.jooq.tables.pojos.Article;
 
 import java.time.LocalDateTime;
@@ -21,8 +19,6 @@ public class SingleArticleRep {
     private String content;
 
     private String summary;
-
-    private Long categoryId;
 
     private String thumbnail;
 
@@ -47,7 +43,6 @@ public class SingleArticleRep {
         this.title = article.getTitle();
         this.content = article.getContent();
         this.summary = article.getSummary();
-        this.categoryId = article.getCategoryId();
         this.thumbnail = article.getThumbnail();
         this.isTop = article.getIsTop();
         this.viewCount = article.getViewCount();

@@ -1,6 +1,7 @@
 package org.sounfury.system.dto.rep;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sounfury.system.model.LoginUser;
@@ -8,6 +9,7 @@ import org.sounfury.system.model.LoginUser;
 import java.io.Serializable;
 import java.util.List;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

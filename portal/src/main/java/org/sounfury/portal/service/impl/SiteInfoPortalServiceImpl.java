@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sounfury.jooq.tables.daos.SiteCreatorInfoDao;
 import org.sounfury.jooq.tables.pojos.SiteCreatorInfo;
 import org.sounfury.jooq.tables.pojos.SiteInfo;
+import org.sounfury.portal.dto.rep.InfoCountRep;
 import org.sounfury.portal.dto.rep.SiteCreatorInfoRep;
 import org.sounfury.portal.repository.SiteInfoPortalRepository;
 import org.sounfury.portal.service.SiteInfoPortalService;
@@ -30,5 +31,10 @@ public class SiteInfoPortalServiceImpl implements SiteInfoPortalService {
     public SiteCreatorInfoRep getSiteCreatorInfo() {
         SiteCreatorInfo siteCreatorInfo = siteCreatorInfoRepository.fetchOneById((byte) 1);
         return new SiteCreatorInfoRep(siteCreatorInfo);
+    }
+
+    @Override
+    public InfoCountRep count() {
+        return siteInfoRepository.countInfo();
     }
 }

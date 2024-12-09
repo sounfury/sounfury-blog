@@ -7,6 +7,7 @@ import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.portal.dto.rep.CategoryTreeNode;
 import org.sounfury.portal.service.CategoryPortalService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,7 @@ public class CategoryPortalController {
     /**
      * 查询所有的分类
      */
+    @GetMapping("/all")
     public Result<List<CategoryTreeNode>> getAllCategory() {
         return Results.success(categoryService.getAllCategory());
     }

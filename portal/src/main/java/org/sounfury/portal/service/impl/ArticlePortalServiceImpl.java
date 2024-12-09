@@ -6,10 +6,7 @@ import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.tables.pojos.Article;
 import org.sounfury.jooq.tables.pojos.Category;
-import org.sounfury.portal.dto.rep.ArticleCategoryDto;
-import org.sounfury.portal.dto.rep.PageArticleRep;
-import org.sounfury.portal.dto.rep.SingleArticleRep;
-import org.sounfury.portal.dto.rep.TagPortalDto;
+import org.sounfury.portal.dto.rep.*;
 import org.sounfury.portal.dto.req.CategoryPageReq;
 import org.sounfury.portal.dto.req.HistoryPageArticlesReq;
 import org.sounfury.portal.dto.req.TagPageReq;
@@ -50,13 +47,27 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
     }
 
     @Override
-    public PageRepDto<List<PageArticleRep>> historyArticle(HistoryPageArticlesReq historyPageArticlesReq) {
-
-        PageRepDto<List<PageArticleRep>> listPageRepDto = articleRepository.pageQueryHistoryArticle(
-                historyPageArticlesReq);
-
+public PageRepDto<List<PageArticleRep>> historyArticle(HistoryPageArticlesReq historyPageArticlesReq) {
+    PageRepDto<List<PageArticleRep>> listPageRepDto;
+    if(historyPageArticlesReq.getAccuracy() == null) {
+        //未传查询全部
+        listPageRepDto = articleRepository.pageQueryArticle(historyPageArticlesReq);
         return getPageTagsAndCategory(listPageRepDto);
     }
+
+    switch (historyPageArticlesReq.getAccuracy()) {
+        case YEAR:
+            listPageRepDto = articleRepository.pageQueryHistoryArticleByYear(historyPageArticlesReq);
+            break;
+        case MONTH:
+            listPageRepDto = articleRepository.pageQueryHistoryArticleByMonth(historyPageArticlesReq);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported accuracy: " + historyPageArticlesReq.getAccuracy());
+    }
+
+    return getPageTagsAndCategory(listPageRepDto);
+}
 
     @Override
     public PageRepDto<List<PageArticleRep>> pageQueryArticleByCategoryId(CategoryPageReq pageReqDto) {
@@ -70,18 +81,30 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
         return getPageTagsAndCategory(listPageRepDto);
     }
 
+    @Override
+    public List<PageArticleRep> pageQueryArticleTest(PageReqDto pageReqDto) {
+        return articleRepository.pageQueryArticleTest(pageReqDto);
+    }
+
+    @Override
+    public List<HistoryCount> historyArticleCount() {
+        return articleRepository.historyArticleCount();
+    }
+
     @NotNull
     private PageRepDto<List<PageArticleRep>> getPageTagsAndCategory(PageRepDto<List<PageArticleRep>> listPageRepDto) {
-        listPageRepDto.getData()
-                .forEach(pageArticleRep -> {
-                    Category category = categoryRepository.fetchOneById(pageArticleRep.getCategoryId());
-                    List<TagPortalDto> tagPortalDtoList = tagRepository.fetchByArticleId(pageArticleRep.getId())
-                            .stream()
-                            .map(tag -> new TagPortalDto(tag.getId(), tag.getName()))
-                            .toList();
-                    pageArticleRep.setTags(tagPortalDtoList);
-                    pageArticleRep.setCategory(new ArticleCategoryDto(category.getId(), category.getName()));
-                });
+       if(listPageRepDto.getData() != null) {
+           listPageRepDto.getData()
+                   .forEach(pageArticleRep -> {
+                       Category category = categoryRepository.fetchOneById(pageArticleRep.getCategoryId());
+                       List<TagPortalDto> tagPortalDtoList = tagRepository.fetchByArticleId(pageArticleRep.getId())
+                               .stream()
+                               .map(tag -> new TagPortalDto(tag.getId(), tag.getName()))
+                               .toList();
+                       pageArticleRep.setTags(tagPortalDtoList);
+                       pageArticleRep.setCategory(new ArticleCategoryDto(category.getId(), category.getName()));
+                   });
+       }
         return listPageRepDto;
     }
 

@@ -1,6 +1,7 @@
 package org.sounfury.portal.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import lombok.RequiredArgsConstructor;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.portal.dto.rep.TagsQueryRep;
@@ -14,8 +15,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/portal/tag")
 @SaIgnore
+@RequiredArgsConstructor
 public class TagPortalController {
-    private TagPortalService tagService;
+    private final TagPortalService tagService;
 
     /**
      * 获取所有标签,以及对应的文章数量

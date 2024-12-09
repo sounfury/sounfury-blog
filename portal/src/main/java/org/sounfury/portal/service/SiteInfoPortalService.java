@@ -1,6 +1,7 @@
 package org.sounfury.portal.service;
 
 import org.sounfury.jooq.tables.pojos.SiteInfo;
+import org.sounfury.portal.dto.rep.InfoCountRep;
 import org.sounfury.portal.dto.rep.SiteCreatorInfoRep;
 
 public interface SiteInfoPortalService {
@@ -17,4 +18,5 @@ public interface SiteInfoPortalService {
      */
     SiteCreatorInfoRep getSiteCreatorInfo();
 
+    InfoCountRep count();
 }

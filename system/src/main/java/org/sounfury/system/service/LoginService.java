@@ -4,6 +4,7 @@ import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserLoginReqDTO;
 import org.sounfury.system.dto.req.UserRegisterReqDTO;
 import org.sounfury.system.dto.urp.UserRolePermissionDto;
+import org.sounfury.system.model.LoginUser;
 
 public interface LoginService {
     /**
@@ -16,7 +17,7 @@ public interface LoginService {
      * 登录
      * @param requestParam
      */
-    Long login(UserLoginReqDTO requestParam);
+    LoginUser login(UserLoginReqDTO requestParam);
 
     /**
      * 检查username是否存在

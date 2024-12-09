@@ -1,9 +1,9 @@
 package org.sounfury.admin.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaIgnore;
 import lombok.RequiredArgsConstructor;
-import org.sounfury.admin.dto.rep.ThemeListRep;
+import org.sounfury.admin.dto.rep.ThemeRep;
 import org.sounfury.admin.dto.req.ThemeReq;
 import org.sounfury.admin.model.ThemeSetting;
 import org.sounfury.admin.service.ThemeService;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/system/theme")
+@RequestMapping("/admin/theme")
 @RequiredArgsConstructor
 public class ThemeController {
 
@@ -24,17 +24,18 @@ public class ThemeController {
     /**
      * 获取主题列表
      */
-    @SaCheckPermission("WRITE_ARTICLES")
+    @SaIgnore
     @GetMapping("/list")
-    public Result<List<ThemeListRep>> list() {
+    public Result<List<ThemeRep>> list() {
         return Results.success(themeService.list());
     }
 
     /**
      * 根据key获取主题设置
      */
+    @SaIgnore
     @GetMapping("/{key}")
-    public Result<ThemeSetting> getByKey(@PathVariable String key) {
+    public Result<ThemeRep> getByKey(@PathVariable String key) {
         return Results.success(themeService.getByKey(key));
     }
 
@@ -42,8 +43,9 @@ public class ThemeController {
     /**
      * 获取目前启用的主题
      */
+    @SaIgnore
     @GetMapping()
-    public Result<ThemeSetting> getNowTheme() {
+    public Result<ThemeRep> getNowTheme() {
         return Results.success(themeService.getNowTheme());
     }
 

@@ -29,10 +29,12 @@ public class TagPortalRepository extends TagDao {
     public List<Tag> fetchByArticleId(Long articleId) {
         return ctx().select(TAG.asterisk())
                 .from(TAG)
-                .leftJoin(ARTICLE_TAG)
-                .on(TAG.ID.eq(ARTICLE_TAG.TAG_ID))
-                .where(ARTICLE_TAG.TAG_ID.eq(articleId))
-                .and(TAG.DEL_FLAG.eq((NOT_DEL_FLAG)))
+                .where(TAG.ID.in(
+                        ctx().select(ARTICLE_TAG.TAG_ID)
+                                .from(ARTICLE_TAG)
+                                .where(ARTICLE_TAG.ARTICLE_ID.eq(articleId))
+                ))
+                .and(TAG.DEL_FLAG.eq(NOT_DEL_FLAG))
                 .fetchInto(Tag.class);
     }
 

@@ -2,6 +2,7 @@ package org.sounfury.portal.service;
 
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
+import org.sounfury.portal.dto.rep.HistoryCount;
 import org.sounfury.portal.dto.rep.PageArticleRep;
 import org.sounfury.portal.dto.rep.SingleArticleRep;
 import org.sounfury.portal.dto.req.CategoryPageReq;
@@ -48,4 +49,7 @@ public interface ArticlePortalService {
      */
     PageRepDto<List<PageArticleRep>> pageQueryArticleByTagId(TagPageReq pageReqDto);
 
+    List<PageArticleRep> pageQueryArticleTest(PageReqDto pageReqDto);
+
+    List<HistoryCount> historyArticleCount();
 }

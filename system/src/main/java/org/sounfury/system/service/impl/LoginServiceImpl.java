@@ -28,6 +28,7 @@ import java.util.Objects;
 import static org.sounfury.core.constant.CacheNames.LOGIN_USER;
 import static org.sounfury.core.enums.UserErrorCodeEnum.USER_EXIST;
 import static org.sounfury.core.enums.UserErrorCodeEnum.USER_NULL;
+import static org.sounfury.system.common.enums.RoleEnum.EDITOR;
 
 @Service
 @RequiredArgsConstructor
@@ -49,20 +50,16 @@ public class LoginServiceImpl implements LoginService {
         Long id = userRepository.insertUser(
                 Objects.requireNonNull(MapstructUtils.convert(requestParam, User.class)));
         userRoleMapRepository.insert(new UserRoleMap().setUserId(id)
-                .setRoleId(RoleEnum.fromCode("EDITOR")
-                        .getId()));
+                .setRoleId(EDITOR.getId()));
     }
 
     @Override
-    public Long login(UserLoginReqDTO requestParam) {
+    public LoginUser login(UserLoginReqDTO requestParam) {
         User user = userRepository.getByUsernameAndPassword(requestParam.getUsername(), requestParam.getPassword());
         if (user == null) {
             throw new ClientException(USER_NULL);
         }
-        LoginUser loginUser = BeanUtil.copyProperties(user, LoginUser.class);
-        StpUtil.getSession()
-                .set(LOGIN_USER + user.getUsername(), loginUser);
-        return user.getId();
+        return BeanUtil.copyProperties(user, LoginUser.class);
     }
 
     @Override

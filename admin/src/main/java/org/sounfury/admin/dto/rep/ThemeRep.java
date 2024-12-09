@@ -9,7 +9,7 @@ import org.sounfury.admin.model.ThemeSetting;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThemeListRep {
+public class ThemeRep {
     private Integer themeId;
     private String themeKey;
     private String themeName;

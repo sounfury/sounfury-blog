@@ -1,8 +1,10 @@
 package org.sounfury.system.controller;
 
 import cn.dev33.satoken.SaManager;
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
@@ -13,11 +15,11 @@ import org.sounfury.system.dto.req.UserRegisterReqDTO;
 import org.sounfury.system.model.LoginUser;
 import org.sounfury.system.service.LoginService;
 import org.sounfury.system.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.sounfury.core.constant.CacheNames.LOGIN_USER;
 
@@ -34,22 +36,16 @@ public class LoginController {
      */
     @SaIgnore
     @PostMapping("/login")
-    public Result<String> login(UserLoginReqDTO requestParam) {
-        LoginUser loginUser = (LoginUser) StpUtil.getSession()
-                .get(LOGIN_USER + requestParam.getUsername());
-
-        if (loginUser != null) {
-            //如果用户已经登录，直接返回登录成功
-            return Results.success("登录成功");
-        }
-
-        Long userId = loginService.login(requestParam);
-        if (StpUtil.isLogin() && !StpUtil.getLoginId()
-                .equals(userId)) {
+    public Result<Map<String,String>> login(@Valid @RequestBody UserLoginReqDTO requestParam) {
+        if(StpUtil.isLogin()){
             StpUtil.logout();
         }
-        StpUtil.login(userId, requestParam.getRememberMe());
-        return Results.success("登录成功");
+        LoginUser loginUser = loginService.login(requestParam);
+        StpUtil.login(loginUser.getId());
+        StpUtil.getSession().set(LOGIN_USER, loginUser);
+        Map<String,String> token=new HashMap<>();
+        token.put("token",StpUtil.getTokenValue());
+        return Results.success(token);
     }
 
     /**
@@ -82,6 +78,7 @@ public class LoginController {
     @PostMapping("/logout")
     public Result<Void> logout() {
         StpUtil.logout();
+        System.out.println("当前是否处于登录状态：" + StpUtil.isLogin());
         return Results.success();
     }
 
@@ -90,12 +87,14 @@ public class LoginController {
      */
     @GetMapping("/getInfo")
     public Result<UserInfo> getInfo() {
-        Object object = SaManager.getSaTokenDao()
-                .getObject(LOGIN_USER);
+        Object loginUser = StpUtil.getSession().get(LOGIN_USER);
         List<String> roleList = StpUtil.getRoleList();
         List<String> permissionList = StpUtil.getPermissionList();
-
-        return Results.success(new UserInfo((LoginUser) object, roleList, permissionList));
+        return Results.success(UserInfo.builder()
+                .loginUser((LoginUser) loginUser)
+                .roles(roleList)
+                .permissions(permissionList)
+                .build());
     }
 
 

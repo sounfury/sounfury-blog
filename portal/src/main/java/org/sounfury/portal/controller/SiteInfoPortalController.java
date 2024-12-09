@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.jooq.tables.pojos.SiteInfo;
+import org.sounfury.portal.dto.rep.InfoCountRep;
 import org.sounfury.portal.dto.rep.SiteCreatorInfoRep;
 import org.sounfury.portal.service.SiteInfoPortalService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,4 +37,14 @@ public class SiteInfoPortalController {
     public Result<SiteCreatorInfoRep> getSiteCreatorInfo() {
         return Results.success(siteInfoService.getSiteCreatorInfo());
     }
+
+    /**
+     * 统计文章，标签，分类
+     */
+    @GetMapping("/count")
+    public Result<InfoCountRep> count() {
+        return Results.success(siteInfoService.count());
+    }
+
+
 }

@@ -1,6 +1,6 @@
 package org.sounfury.admin.service;
 
-import org.sounfury.admin.dto.rep.ThemeListRep;
+import org.sounfury.admin.dto.rep.ThemeRep;
 import org.sounfury.admin.dto.req.ThemeReq;
 import org.sounfury.admin.model.ThemeSetting;
 
@@ -12,21 +12,22 @@ public interface ThemeService {
      * 获取主题列表
      * @return
      */
-    List<ThemeListRep> list();
+    List<ThemeRep> list();
 
     /**
      * 根据key获取主题设置
+     *
      * @param key
      * @return
      */
-    ThemeSetting getByKey(String key);
+    ThemeRep getByKey(String key);
 
 
     /**
      * 获取目前启用的主题
      * @return
      */
-    ThemeSetting getNowTheme();
+    ThemeRep getNowTheme();
 
     /**
      * 修改主题设置

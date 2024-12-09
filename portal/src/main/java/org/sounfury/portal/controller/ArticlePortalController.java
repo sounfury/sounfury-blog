@@ -6,6 +6,7 @@ import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
+import org.sounfury.portal.dto.rep.HistoryCount;
 import org.sounfury.portal.dto.rep.PageArticleRep;
 import org.sounfury.portal.dto.rep.SingleArticleRep;
 import org.sounfury.portal.dto.req.CategoryPageReq;
@@ -49,6 +50,13 @@ public class ArticlePortalController {
     public Result<PageRepDto<List<PageArticleRep>>> pageQueryArticle(PageReqDto pageReqDto) {
         return Results.success(articleService.pageQueryArticle(pageReqDto));
     }
+    /**
+     * 测试
+     */
+    @GetMapping("/page/test")
+    public Result<List<PageArticleRep>> pageQueryArticleTest(PageReqDto pageReqDto) {
+        return Results.success(articleService.pageQueryArticleTest(pageReqDto));
+    }
 
     /**
      * 查询历史文章
@@ -57,6 +65,15 @@ public class ArticlePortalController {
     public Result<PageRepDto<List<PageArticleRep>>> historyArticle(HistoryPageArticlesReq historyPageArticlesReq) {
         return Results.success(articleService.historyArticle(historyPageArticlesReq));
     }
+
+    /**
+     * 查询最近月份的文章数量
+     */
+    @GetMapping("/history/count")
+    public Result<List<HistoryCount>> historyArticleCount() {
+        return Results.success(articleService.historyArticleCount());
+    }
+
 
     /**
      * 根据分类id分页查询文章
