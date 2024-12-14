@@ -36,7 +36,7 @@ public interface ThemeService {
      * @param setting
      * @return
      */
-    ThemeSetting update(ThemeReq themeUpdateReq);
+    ThemeRep update(ThemeReq themeUpdateReq);
 
 
     /**

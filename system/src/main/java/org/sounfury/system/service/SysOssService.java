@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.system.dto.SysOssDto;
+import org.sounfury.system.dto.rep.SysOssConfigRep;
 import org.sounfury.system.dto.req.SysOssReq;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,5 +78,12 @@ public interface SysOssService {
      * @return 结果
      */
     Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid);
+
+
+    /**
+     * 修改OSS对象存储
+     */
+    void update(SysOssReq sysOss);
+
 
 }

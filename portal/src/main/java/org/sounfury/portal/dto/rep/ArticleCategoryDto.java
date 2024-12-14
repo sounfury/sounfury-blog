@@ -11,5 +11,4 @@ import lombok.Data;
 public class ArticleCategoryDto {
     private Long id;
     private String name;
-
 }

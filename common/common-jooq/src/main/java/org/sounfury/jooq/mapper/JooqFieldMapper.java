@@ -17,12 +17,7 @@ public class JooqFieldMapper {
     // 缓存getter方法，避免重复反射
     private static final ConcurrentHashMap<Class<?>, Map<String, Method>> GETTER_CACHE = new ConcurrentHashMap<>();
     
-    /**
-     * 将实体对象映射为JOOQ字段Map
-     * @param entity 实体对象
-     * @param table JOOQ表定义
-     * @return 字段映射Map
-     */
+
     /**
      * 将实体对象映射为JOOQ字段Map
      * @param entity 实体对象

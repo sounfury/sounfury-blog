@@ -1,5 +1,6 @@
 package org.sounfury.admin.dto.req;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ public class ArticleAddReq {
     private Byte isComment;
 
     @NotNull(message = "创建时间不能为空")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private LocalDateTime createTime;
 
     private List<String> tags;

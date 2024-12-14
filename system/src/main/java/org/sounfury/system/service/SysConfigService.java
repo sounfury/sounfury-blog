@@ -1,6 +1,7 @@
 package org.sounfury.system.service;
 
 import org.sounfury.system.dto.rep.SysConfigRep;
+import org.sounfury.system.dto.req.SysConfigReq;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public interface SysConfigService {
     /**
      * 获取全部的配置键值对
      */
-    Map<String,String> getAllConfig();
+    Map<String, String> getAllConfig();
 
     /**
      * 根据配置key修改配置
@@ -44,20 +45,18 @@ public interface SysConfigService {
     /**
      * 加载参数缓存数据
      */
-    public void loadingConfigCache();
+    void loadingConfigCache();
 
     /**
      * 清空参数缓存数据
      */
-    public void clearConfigCache();
+    void clearConfigCache();
 
     /**
      * 重置参数缓存数据
      */
-    public void resetConfigCache();
+    void resetConfigCache();
 
 
-
-
-
+    void updateSysConfigBatch(List<SysConfigReq> configMap);
 }

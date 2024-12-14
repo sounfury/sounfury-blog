@@ -33,7 +33,8 @@ public class CategoryPortalServiceImpl implements CategoryPortalService {
                                 record.getId(),
                                 record.getName(),
                                 record.getPid(),
-                                record.getDescription()
+                                record.getDescription(),
+                                record.getOrder()
                         )
                 ));
         List<CategoryTreeNode> tree = new ArrayList<>();

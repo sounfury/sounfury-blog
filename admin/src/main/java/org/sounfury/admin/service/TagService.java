@@ -3,6 +3,7 @@ package org.sounfury.admin.service;
 import org.sounfury.portal.dto.rep.TagsQueryRep;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TagService {
 
@@ -11,4 +12,6 @@ public interface TagService {
      *
      */
     List<TagsQueryRep> getAllTags();
+
+    Map<Long, String> tagDict();
 }

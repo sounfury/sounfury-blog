@@ -3,7 +3,7 @@ package org.sounfury.admin.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.admin.dto.req.CategoryAddReq;
-import org.sounfury.admin.dto.req.CategoryUpdateReq;
+import org.sounfury.admin.dto.req.SortCategoryReq;
 import org.sounfury.admin.repository.ArticleAdminRepository;
 import org.sounfury.admin.repository.CategoryAdminRepository;
 import org.sounfury.admin.service.CategoryService;
@@ -39,7 +39,8 @@ public class CategoryServiceImpl implements CategoryService {
                                 record.getId(),
                                 record.getName(),
                                 record.getPid(),
-                                record.getDescription()
+                                record.getDescription(),
+                                record.getOrder()
                         )
                 ));
         List<CategoryTreeNode> tree = new ArrayList<>();
@@ -60,21 +61,22 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addCategory(CategoryAddReq categoryAddReq) {
         Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
         long userId = StpUtil.getLoginIdAsLong();
         convert.setCreateBy(userId);
         convert.setUpdateBy(userId);
-        categoryAdminRepository.insert(convert);
+        categoryAdminRepository.insertCategory(convert);
 
     }
 
     @Override
-    public void updateCategory(CategoryUpdateReq categoryAddReq) {
-        Category convert = MapstructUtils.convert(categoryAddReq, Category.class);
+    @Transactional(rollbackFor = Exception.class)
+    public void updateCategory(Category category) {
         long userId = StpUtil.getLoginIdAsLong();
-        convert.setUpdateBy(userId);
-        categoryAdminRepository.insert(convert);
+        category.setUpdateBy(userId);
+        categoryAdminRepository.updateCategory(category);
     }
 
     @Override
@@ -83,8 +85,8 @@ public class CategoryServiceImpl implements CategoryService {
         //级联删除，把所有子分类也删除
         //先查询出所有子分类
         List<Long> allChildIds = buildChildrenTree(id);
-        //删除
         allChildIds.add(id);
+
         categoryAdminRepository.deleteBatchByIds(allChildIds);
         //删除分类和文章的关联关系,即更新文章的分类id为默认分类
         articleAdminRepository.updateCategoryToDefault(allChildIds);
@@ -95,6 +97,24 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean isExist(Long categoryId) {
         return categoryAdminRepository.fetchById(categoryId) != null;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void BatchUpdateCategorySort(List<SortCategoryReq> sortCategoryReq) {
+        //批量更新分类排序
+        List<Category> convert = MapstructUtils.convert(sortCategoryReq, Category.class);
+        if (convert != null) {
+            categoryAdminRepository.batchUpdateCategorySort(convert);
+        }
+    }
+
+    @Override
+    public Map<Long, String> categoryDict() {
+        List<CategoryRecord> allCategories = categoryAdminRepository.getAllCategories();
+        return allCategories.stream()
+                .collect(Collectors.toMap(CategoryRecord::getId, CategoryRecord::getName));
+    }
+
 
     private List<Long> buildChildrenTree(Long pid) {
         List<Category> directChildren = categoryAdminRepository.fetchByPid(pid);

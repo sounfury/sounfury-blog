@@ -18,13 +18,12 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.sounfury.core.constant.Constants.STATUS_ENABLE;
 import static org.sounfury.core.constant.DefaultConfigKey.SYS_CONFIG_THEME_KEY;
 import static org.sounfury.core.constant.ThemeConstant.DEFAULT_THEME;
 import static org.sounfury.core.constant.ThemeConstant.ENABLED_THEME;
@@ -33,29 +32,25 @@ import static org.sounfury.core.constant.ThemeConstant.ENABLED_THEME;
 @RequiredArgsConstructor
 public class ThemeServiceImpl implements ThemeService {
     private final ThemeSettingsRepository themeSettingsRepository;
-    private final SysConfigRepository sysConfigRepository;
     private final ApplicationContext applicationContext;
 
     @Override
     public List<ThemeRep> list() {
-        // 获取缓存中的数据
         Map<Object, Object> cacheData = CacheUtils.getAll(CacheNames.SYS_THEME);
 
-        // 如果缓存为空，则返回空列表
         if (cacheData.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 转换类型为 Map<String, ThemeRep>
-        Map<String, ThemeRep> convertedCacheData = cacheData.entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        entry -> (String) entry.getKey(),   // 转换 key 类型
-                        entry -> (ThemeRep) entry.getValue() // 转换 value 类型
-                ));
-
-        // 返回所有 ThemeRep 对象的列表
-        return new ArrayList<>(convertedCacheData.values());
+        return cacheData.values().stream()
+                .map(value -> {
+                    if (value instanceof ThemeRep) {
+                        return (ThemeRep) value;
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 
@@ -70,12 +65,12 @@ public class ThemeServiceImpl implements ThemeService {
         }
         // 将 ThemeSettings 转换为 ThemeRep
         ThemeRep themeRep = new ThemeRep();
-        themeRep.setThemeId(themeSettings.getThemeId());
         themeRep.setThemeKey(themeSettings.getThemeKey());
         themeRep.setThemeName(themeSettings.getThemeName());
         themeRep.setSettings(JsonUtils.parseObject(themeSettings.getSettings().toString(), ThemeSetting.class));
         themeRep.setDescription(themeSettings.getDescription());
         themeRep.setMode(themeSettings.getMode());
+        themeRep.setEnableStatus(themeSettings.getEnableStatus());
         return themeRep; // 返回转换后的 ThemeRep 对象
     }
     @Override
@@ -86,19 +81,35 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     @Override
+    @Transactional
     @CachePut(value = CacheNames.SYS_THEME, key = "#themeUpdateReq.themeKey")
-    public ThemeSetting update(ThemeReq themeUpdateReq) {
+    public ThemeRep update(ThemeReq themeUpdateReq) {
         ThemeSettings themeSettings = new ThemeSettings();
         themeSettings.setThemeKey(themeUpdateReq.getThemeKey());
         themeSettings.setThemeName(themeUpdateReq.getThemeName());
         themeSettings.setDescription(themeUpdateReq.getDescription());
         themeSettings.setMode(themeUpdateReq.getMode());
         themeSettings.setSettings(JSON.valueOf(JsonUtils.toJsonString(themeUpdateReq.getSettings())));
+        themeSettings.setEnableStatus(themeUpdateReq.getEnableStatus());
+        if(Objects.equals(themeUpdateReq.getEnableStatus(), STATUS_ENABLE)){
+            //覆盖之前的启用主题
+            CacheUtils.put(CacheNames.SYS_THEME, ENABLED_THEME, themeUpdateReq.getThemeKey());
+        }
+
         themeSettingsRepository.updateTheme(themeSettings);
-        return themeUpdateReq.getSettings();
+        ThemeRep themeRep = ThemeRep.builder()
+                .themeKey(themeSettings.getThemeKey())
+                .themeName(themeSettings.getThemeName())
+                .settings(JsonUtils.parseObject(themeSettings.getSettings().toString(), ThemeSetting.class))
+                .description(themeSettings.getDescription())
+                .mode(themeSettings.getMode())
+                .enableStatus(themeSettings.getEnableStatus())
+                .build();
+        return themeRep;
     }
 
     @Override
+    @Transactional
     public void delete(String key) {
         themeSettingsRepository.deleteByThemeKey(key);
         CacheUtils.evict(CacheNames.SYS_THEME, key);
@@ -110,6 +121,7 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     @Override
+    @Transactional
     @CachePut(value = CacheNames.SYS_THEME, key = "#themeAddReq.themeKey")
     public void add(ThemeReq themeAddReq) {
         ThemeSettings themeSettings = new ThemeSettings();
@@ -118,6 +130,11 @@ public class ThemeServiceImpl implements ThemeService {
         themeSettings.setDescription(themeAddReq.getDescription());
         themeSettings.setMode(themeAddReq.getMode());
         themeSettings.setSettings(JSON.valueOf(JsonUtils.toJsonString(themeAddReq.getSettings())));
+        themeSettings.setEnableStatus(themeAddReq.getEnableStatus());
+        if(Objects.equals(themeAddReq.getEnableStatus(), STATUS_ENABLE)){
+            //覆盖之前的启用主题
+            CacheUtils.put(CacheNames.SYS_THEME, ENABLED_THEME, themeAddReq.getThemeKey());
+        }
         themeSettingsRepository.insertTheme(themeSettings);
     }
 
@@ -129,21 +146,21 @@ public class ThemeServiceImpl implements ThemeService {
     @Override
     @PostConstruct
     public void initCache() {
-        //目前启用的主题
-        SysConfig sysConfig = sysConfigRepository.fetchOneByConfigKey(SYS_CONFIG_THEME_KEY);
-        CacheUtils.put(CacheNames.SYS_THEME, ENABLED_THEME, sysConfig.getConfigValue());
-
+        //目前启用的主题,因为status是1的只有一个
+        themeSettingsRepository.fetchByEnableStatus(STATUS_ENABLE).forEach(themeSettings -> {
+            CacheUtils.put(CacheNames.SYS_THEME, ENABLED_THEME, themeSettings.getThemeKey());
+        });
         // 预热所有主题到缓存
         List<ThemeSettings> allThemes = themeSettingsRepository.findAll();
         allThemes.forEach(themeSettings -> {
             // 将 ThemeSettings 转换为 ThemeRep
             ThemeRep themeRep = new ThemeRep();
-            themeRep.setThemeId(themeSettings.getThemeId());
             themeRep.setThemeKey(themeSettings.getThemeKey());
             themeRep.setThemeName(themeSettings.getThemeName());
             themeRep.setSettings(JsonUtils.parseObject(themeSettings.getSettings().toString(), ThemeSetting.class));
             themeRep.setDescription(themeSettings.getDescription());
             themeRep.setMode(themeSettings.getMode());
+            themeRep.setEnableStatus(themeSettings.getEnableStatus());
 
             // 将主题信息写入缓存，key 为 themeKey，value 为 ThemeRep
             CacheUtils.put(CacheNames.SYS_THEME, themeSettings.getThemeKey(), themeRep);

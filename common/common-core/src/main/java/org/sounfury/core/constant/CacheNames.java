@@ -12,6 +12,11 @@ public interface CacheNames {
     String SYS_THEME = "sys_theme";
 
     /**
+     * 网站信息
+     */
+    String SITE_INFO = "site_info";
+
+    /**
      * 数据字典
      */
     String SYS_DICT = "sys_dict";

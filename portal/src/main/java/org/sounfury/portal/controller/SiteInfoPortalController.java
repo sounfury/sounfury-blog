@@ -1,12 +1,14 @@
 package org.sounfury.portal.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.jooq.tables.pojos.SiteInfo;
 import org.sounfury.portal.dto.rep.InfoCountRep;
 import org.sounfury.portal.dto.rep.SiteCreatorInfoRep;
+import org.sounfury.portal.dto.rep.SiteInfoRep;
 import org.sounfury.portal.service.SiteInfoPortalService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,16 +23,18 @@ public class SiteInfoPortalController {
 
     /**
      * 获取站点信息
+     *
      * @return
      */
     @GetMapping("/info")
-    public Result<SiteInfo> getSiteInfo() {
+    public Result<SiteInfoRep> getSiteInfo() {
         SiteInfo siteInfo = siteInfoService.getSiteInfo();
-        return Results.success(siteInfo);
+        return Results.success(BeanUtil.copyProperties(siteInfo, SiteInfoRep.class));
     }
 
     /**
      * 获取站点创建者信息
+     *
      * @return
      */
     @GetMapping("/creator-info")

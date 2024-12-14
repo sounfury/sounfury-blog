@@ -1,8 +1,16 @@
 package org.sounfury.system.dto.rep;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class SysOssConfigRep {
     private Long ossConfigId;
     private String configKey;
@@ -15,10 +23,8 @@ public class SysOssConfigRep {
     private Byte isHttps;
     private String region;
     private Byte accessPolicy;
-    private Long createBy;
-    private LocalDateTime createTime;
-    private Long updateBy;
+    //上次修改时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
     private String remark;
-    private Byte enableStatus;
 }

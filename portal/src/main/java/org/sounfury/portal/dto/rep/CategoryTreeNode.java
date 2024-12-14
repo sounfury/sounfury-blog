@@ -16,13 +16,15 @@ public class CategoryTreeNode {
     private String name;
     private Long pid; // 父分类 ID
     private String description;
+    private Integer order; // 排序
     private List<CategoryTreeNode> children = new ArrayList<>(); // 子分类列表
 
-    public CategoryTreeNode(Long id, String name, Long pid, String description) {
+    public CategoryTreeNode(Long id, String name, Long pid, String description, Integer order) {
         this.id = id;
         this.name = name;
         this.pid = pid;
         this.description = description;
+        this.order = order;
     }
 
 

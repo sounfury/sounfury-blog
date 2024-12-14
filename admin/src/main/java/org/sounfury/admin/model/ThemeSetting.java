@@ -29,7 +29,10 @@ public class ThemeSetting implements Serializable {
     @JsonProperty("HeroImageNight")
     private String HeroImageNight;
 
-    @JsonProperty("TypingEffectContent")
-    private String TypingEffectContent;
+    @JsonProperty("TypingEffectFirstLine")
+    private String TypingEffectFirstLine;
+
+    @JsonProperty("TypingEffectSecondLine")
+    private String TypingEffectSecondLine;
 
 }

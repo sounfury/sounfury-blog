@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  *重写RedissonSpringCacheManager，支持多参数cacheName
+ * 1.支持TTL、最大空闲时间和最大大小
+ * 2，提供可选的事务感知（transactionAware）功能
  * A {@link org.springframework.cache.CacheManager} implementation
  */
 @SuppressWarnings("unchecked")

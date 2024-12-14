@@ -7,6 +7,8 @@ import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
 import org.sounfury.system.dto.rep.SysConfigRep;
+import org.sounfury.system.dto.req.SysConfigReq;
+import org.sounfury.system.dto.req.SysOssConfigReq;
 import org.sounfury.system.service.SysConfigService;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,6 +59,17 @@ public class ConfigController {
         configService.updateSysConfigByConfigKey(key, value);
         return Results.success();
     }
+
+    /**
+     * 批量修改参数配置
+     */
+    @PutMapping("/batch")
+    public Result<Void> updateBatch(@RequestBody List<SysConfigReq>  configMap) {
+        configService.updateSysConfigBatch(configMap);
+        return Results.success();
+    }
+
+
 
     /**
      * 获取全部的配置键值对

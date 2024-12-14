@@ -87,7 +87,7 @@ public class SysOssConfigServiceImpl implements SysOssConfigService {
     public Boolean update(SysOssConfigReq bo) {
         SysOssConfig convert = MapstructUtils.convert(bo, SysOssConfig.class);
         validEntityBeforeSave(convert);
-        sysOssConfigRepository.update(convert);
+        sysOssConfigRepository.updateOssConfig(convert);
         SysOssConfig sysOssConfig = sysOssConfigRepository.fetchOneByOssConfigId(bo.getOssConfigId());
         //为空返回false
         if (sysOssConfig == null) {

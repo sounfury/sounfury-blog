@@ -11,11 +11,15 @@ import org.sounfury.core.utils.StringUtils;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.tables.pojos.SysOss;
+import org.sounfury.jooq.tables.pojos.SysOssConfig;
 import org.sounfury.oss.core.OssClient;
 import org.sounfury.oss.entity.UploadResult;
 import org.sounfury.oss.enums.AccessPolicyType;
 import org.sounfury.system.dto.SysOssDto;
+import org.sounfury.system.dto.rep.SysOssConfigRep;
+import org.sounfury.system.dto.req.SysOssConfigReq;
 import org.sounfury.system.dto.req.SysOssReq;
+import org.sounfury.system.repository.SysOssConfigRepository;
 import org.sounfury.system.repository.SysOssRepository;
 import org.sounfury.system.service.SysOssService;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,7 @@ import java.util.List;
 @Service
 public class SysOssServiceImpl implements SysOssService {
     private final SysOssRepository sysOssRepository;
+    private final SysOssConfigRepository sysOssConfigRepository;
 
 
     @Override
@@ -104,4 +109,11 @@ public class SysOssServiceImpl implements SysOssService {
     public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
         return null;
     }
+
+    @Override
+    public void update(SysOssReq sysOss) {
+        sysOssRepository.updateOss(sysOss);
+    }
+
+
 }

@@ -2,6 +2,7 @@ package org.sounfury.admin.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.annotation.SaIgnore;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.admin.dto.rep.ThemeRep;
 import org.sounfury.admin.dto.req.ThemeReq;
@@ -55,7 +56,7 @@ public class ThemeController {
      */
     @SaCheckRole("ADMIN")
     @PutMapping()
-    public Result<Void> update(ThemeReq themeUpdateReq) {
+    public Result<Void> update(@RequestBody @Valid ThemeReq themeUpdateReq) {
         themeService.update(themeUpdateReq);
         return Results.success();
     }
@@ -78,7 +79,7 @@ public class ThemeController {
      */
     @SaCheckRole("ADMIN")
     @PostMapping()
-    public Result<Void> add(ThemeReq themeAddReq) {
+    public Result<Void> add(@RequestBody @Valid ThemeReq themeAddReq) {
         if(themeService.checkKeyExist(themeAddReq.getThemeKey())){
             return Results.failure(new ClientException("主题key已存在"));
         }

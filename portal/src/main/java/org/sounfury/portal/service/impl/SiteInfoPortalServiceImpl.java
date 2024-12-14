@@ -12,16 +12,17 @@ import org.sounfury.utils.RedisCache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import static org.sounfury.core.constant.CacheNames.SITE_INFO;
+
 @RequiredArgsConstructor
 @Service
 public class SiteInfoPortalServiceImpl implements SiteInfoPortalService {
     private final SiteInfoPortalRepository siteInfoRepository;
     private final SiteCreatorInfoDao siteCreatorInfoRepository;
-    private RedisCache redisCache;
 
 
     @Override
-    @Cacheable(value = "siteInfoCache", key = "'siteInfo'")
+    @Cacheable(value = SITE_INFO, key = "'siteInfo'")
     public SiteInfo getSiteInfo() {
        return siteInfoRepository.fetchOneById((byte) 1);
     }
