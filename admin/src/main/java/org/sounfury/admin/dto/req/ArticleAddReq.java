@@ -43,7 +43,8 @@ public class ArticleAddReq {
     private Byte isComment;
 
     @NotNull(message = "创建时间不能为空")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     private List<String> tags;

@@ -1,5 +1,6 @@
 package org.sounfury.admin.dto.req;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -37,6 +38,8 @@ public class ArticleUpdateReq {
     @Min(value = 0, message = "评论状态只能为0或1")
     @Max(value = 1, message = "评论状态只能为0或1")
     private Byte isComment;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     private String updateBy;
 

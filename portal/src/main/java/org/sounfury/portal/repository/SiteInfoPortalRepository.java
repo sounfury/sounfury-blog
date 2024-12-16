@@ -27,7 +27,7 @@ public class SiteInfoPortalRepository extends SiteInfoDao {
     public void statusArticleInfo(Long totalWords, Long articleCount) {
         ctx().update(SITE_INFO)
                 .set(SITE_INFO.TOTAL_WORDS, SITE_INFO.TOTAL_WORDS.add(totalWords))
-                .set(SITE_INFO.ARTICLE_COUNT, SITE_INFO.ARTICLE_COUNT.add(articleCount))
+                .set(SITE_INFO.ARTICLE_COUNT, articleCount)
                 .execute();
     }
 
