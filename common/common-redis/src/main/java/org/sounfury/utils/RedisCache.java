@@ -156,12 +156,6 @@ public class RedisCache {
         }
         return count == null ? 0 : count;
     }
-
-
-
-
-
-
     /**
      * 获得缓存的set
      *

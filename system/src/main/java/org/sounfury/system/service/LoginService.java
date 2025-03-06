@@ -43,4 +43,7 @@ public interface LoginService {
     void resetPassword(String username);
 
 
+    void validateCaptcha(String username,String code, String uuid);
+
+
 }

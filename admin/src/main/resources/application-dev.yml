@@ -12,7 +12,8 @@ spring:
     redis:
       host: 127.0.0.1
       port: 6379
-      timeout: 10s
+      timeout: 10
+
 
 logging:
   level:
@@ -43,3 +44,7 @@ sa-token:
 
 userManger:
   resetPassword: 123456
+
+
+
+

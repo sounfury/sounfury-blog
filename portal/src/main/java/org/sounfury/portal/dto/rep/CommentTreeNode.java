@@ -26,7 +26,4 @@ public class CommentTreeNode {
     private Byte enableStatus;    //是否启用
     private List<CommentTreeNode> children = new ArrayList<>(); // 子评论和子评论的子评论
 
-
-
-
 }

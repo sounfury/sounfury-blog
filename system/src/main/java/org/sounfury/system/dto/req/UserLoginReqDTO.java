@@ -27,4 +27,18 @@ public class UserLoginReqDTO {
      */
     private Boolean rememberMe;
 
+    /**
+     * 验证码
+     */
+    @NotNull(message = "验证码不能为空")
+    private String code;
+
+    /**
+     * 唯一标识
+     */
+    @NotNull(message = "唯一标识不能为空")
+    private String uuid;
+
+
+
 }

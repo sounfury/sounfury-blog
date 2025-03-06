@@ -40,6 +40,8 @@ public class LoginController {
         if(StpUtil.isLogin()){
             StpUtil.logout();
         }
+        //校验验证码
+        loginService.validateCaptcha(requestParam.getUsername(), requestParam.getCode(), requestParam.getUuid());
         LoginUser loginUser = loginService.login(requestParam);
         StpUtil.login(loginUser.getId());
         StpUtil.getSession().set(LOGIN_USER, loginUser);

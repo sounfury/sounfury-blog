@@ -33,6 +33,11 @@
             <artifactId>hutool-crypto</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.penggle</groupId>
+            <artifactId>kaptcha</artifactId>
+        </dependency>
+
 
     </dependencies>
 

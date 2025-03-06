@@ -19,5 +19,5 @@ public class SysConfigRep {
     private String description;
     //上次修改时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updateTime;
+    private LocalDateTime updatedTime;
 }

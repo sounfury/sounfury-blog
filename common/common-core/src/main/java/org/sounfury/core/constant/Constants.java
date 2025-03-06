@@ -63,11 +63,6 @@ public interface Constants {
     String LOGIN_FAIL = "Error";
 
     /**
-     * 验证码有效期（分钟）
-     */
-    Integer CAPTCHA_EXPIRATION = 2;
-
-    /**
      * 已删除标识
      *
      */
@@ -90,6 +85,12 @@ public interface Constants {
     Byte STATUS_ENABLE = 1;
 
 
+    String CAPTCHA_CODE_KEY = "captcha_codes:";
+
+    /**
+     * 验证码有效期（分钟）
+     */
+    Integer CAPTCHA_EXPIRATION = 2;
 
 }
 

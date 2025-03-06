@@ -13,6 +13,7 @@
         <module>common</module>
         <module>portal</module>
         <module>system</module>
+        <module>ai</module>
     </modules>
 
     <properties>
@@ -21,7 +22,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
-        <spring-boot.version>3.0.7</spring-boot.version>
+        <spring-boot.version>3.3.8</spring-boot.version>
         <jjwt.version>0.9.1</jjwt.version>
         <fastjson2.version>2.0.52</fastjson2.version>
         <dozer-core.version>6.5.2</dozer-core.version>
@@ -38,6 +39,10 @@
         <!-- OSS 配置 -->
         <aws.sdk.version>2.25.15</aws.sdk.version>
         <aws.crt.version>0.29.13</aws.crt.version>
+
+        <!-- 验证码 -->
+        <kaptcha.version>2.3.2</kaptcha.version>
+
     </properties>
 
     <dependencies>
@@ -140,9 +145,11 @@
                 <artifactId>s3-transfer-manager</artifactId>
                 <version>${aws.sdk.version}</version>
             </dependency>
-            <!--短信sms4j-->
-
-
+            <dependency>
+                <groupId>com.github.penggle</groupId>
+                <artifactId>kaptcha</artifactId>
+                <version>${kaptcha.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -195,7 +202,6 @@
             </plugin>
         </plugins>
     </build>
-
 
 
 </project>

@@ -3,8 +3,8 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/admin/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/admin/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/common-bom/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/common-bom/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ai/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ai/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-core/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-core/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-jooq/src/main/java" charset="UTF-8" />
@@ -17,10 +17,6 @@
     <file url="file://$PROJECT_DIR$/common/common-satoken/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-web/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-web/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/common/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/common/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/repository/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/common/repository/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/portal/src/main/java" charset="UTF-8" />
