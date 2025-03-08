@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class IpController {
 
     @GetMapping
-    public Result<String> getIp() {
-        return Results.success(IpUtils.getExternalIp());
+    public Result<String> getIp(HttpServletRequest request) {
+        return Results.success(IpUtils.getExternalIp(request));
     }
 
 }

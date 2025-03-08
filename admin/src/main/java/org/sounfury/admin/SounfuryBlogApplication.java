@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @SpringBootApplication(scanBasePackages = "org.sounfury")
 public class SounfuryBlogApplication {
     public static void main(String[] args) {
+
         SpringApplication.run(SounfuryBlogApplication.class, args);
     }
 }

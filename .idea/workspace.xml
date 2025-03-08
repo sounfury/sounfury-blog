@@ -5,31 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="77da3408-ee3b-41c8-a040-52a2b1a8779b" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/ai/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.cache/.Apifox_Helper/.toolWindow.db" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.cache/.Apifox_Helper/.toolWindow.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ApifoxUploaderProjectSetting.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ApifoxUploaderProjectSetting.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/easyCodeTableSetting.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jpa.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/admin/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/common-core/src/main/java/org/sounfury/core/constant/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/common-core/src/main/java/org/sounfury/core/constant/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/common-redis/src/main/java/org/sounfury/utils/RedisCache.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/common-redis/src/main/java/org/sounfury/utils/RedisCache.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/common-web/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common/common-web/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/portal/src/main/java/org/sounfury/portal/dto/rep/CommentTreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/portal/src/main/java/org/sounfury/portal/dto/rep/CommentTreeNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/system/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/dto/rep/SysConfigRep.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/dto/rep/SysConfigRep.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/dto/req/UserLoginReqDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/dto/req/UserLoginReqDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/service/LoginService.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/service/LoginService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/service/impl/LoginServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/service/impl/LoginServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/admin/src/main/java/org/sounfury/admin/SounfuryBlogApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/admin/src/main/java/org/sounfury/admin/SounfuryBlogApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/common-web/src/main/java/org/sounfury/config/CaptchaConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/common-web/src/main/java/org/sounfury/config/CaptchaConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/CaptchaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/CaptchaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/IpController.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/controller/IpController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/util/IpUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/system/src/main/java/org/sounfury/system/util/IpUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +44,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Docker.docker-compose.yml.blog-server: Compose 部署.executor": "Run",
     "Maven.sounfury_blog [clean].executor": "Run",
     "Maven.sounfury_blog [install].executor": "Run",
     "Maven.sounfury_blog [package].executor": "Run",
@@ -73,10 +55,10 @@
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.SounfuryBlogApplication.executor": "Run",
+    "Spring Boot.SounfuryBlogApplication.executor": "Debug",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/仓库/sounfury_blog",
+    "last_opened_file_path": "D:/仓库/house-keeping",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -97,7 +79,7 @@
       <command value="mvn clean" />
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Spring Boot.SounfuryBlogApplication">
     <configuration name="SounfuryBlogApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="blog-admin" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="org.sounfury.admin.SounfuryBlogApplication" />
@@ -105,6 +87,30 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml.blog-server: Compose 部署" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="服务器">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="blog-server" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yml.blog-server: Compose 部署" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -124,6 +130,8 @@
       <updated>1741252931952</updated>
       <workItem from="1741252933531" duration="7930000" />
       <workItem from="1741266044026" duration="456000" />
+      <workItem from="1741266553262" duration="3575000" />
+      <workItem from="1741417164495" duration="4502000" />
     </task>
     <servers />
   </component>

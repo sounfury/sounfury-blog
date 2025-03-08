@@ -17,50 +17,60 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IpUtils {
-    public static String getHostIp(){
-        try{
-            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (allNetInterfaces.hasMoreElements()){
-                NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
-                Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-                while (addresses.hasMoreElements()){
-                    InetAddress ip = (InetAddress) addresses.nextElement();
-                    if (ip != null
-                            && ip instanceof Inet4Address
-                            && !ip.isLoopbackAddress() //loopback地址即本机地址，IPv4的loopback范围是127.0.0.0 ~ 127.255.255.255
-                            && ip.getHostAddress().indexOf(":")==-1){
-                        System.out.println("本机的IP = " + ip.getHostAddress());
-                        return ip.getHostAddress();
-                    }
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
+/**
+ * 获取公网、外网IP地址
+ *
+ */
+public static String getExternalIp(HttpServletRequest request) {
+    try {
+        // 先尝试从请求头获取IP地址
+        String ip = request.getHeader("X-Forwarded-For");
+        if (CharSequenceUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
         }
-        return null;
-    }
+        if (CharSequenceUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (CharSequenceUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (CharSequenceUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (CharSequenceUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
 
-    /**
-     * 获取公网、外网IP地址
-     *
-     */
-    public static String getExternalIp() {
-        // 发送 GET 请求
-        String url = "https://www.ip.cn/api/index?ip&type=0";
-        String response = HttpRequest.get(url).execute().body();
+        // 本地IP或无法获取时，尝试从外部服务获取
+        if (CharSequenceUtil.isBlank(ip) || "127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
+            // 发送 GET 请求
+            String url = "https://www.ip.cn/api/index?ip&type=0";
+            HttpResponse httpResponse = HttpRequest.get(url)
+                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .timeout(3000)
+                .execute();
+            String response = httpResponse.body();
 
-        // 解析返回的 JSON 数据
-        JSONObject jsonResponse = JSONUtil.parseObj(response);
+            // 解析返回的 JSON 数据
+            JSONObject jsonResponse = JSONUtil.parseObj(response);
 
-        // 提取 IP 地址
-        String ip = jsonResponse.getStr("ip");
+            // 提取 IP 地址
+            String externalIp = jsonResponse.getStr("ip");
 
-        // 如果没有获取到 IP，返回错误提示
-        if (ip == null || ip.isEmpty()) {
-            return "无法获取外网 IP";
+            if (CharSequenceUtil.isNotBlank(externalIp)) {
+                return externalIp;
+            }
+        }
+
+        // 处理多个IP的情况，取第一个非unknown的IP
+        if (ip != null && ip.indexOf(",") > 0) {
+            ip = ip.substring(0, ip.indexOf(","));
         }
 
         return ip;
+    } catch (Exception e) {
+        throw new RuntimeException(e.getMessage(), e);
     }
+}
 
 }

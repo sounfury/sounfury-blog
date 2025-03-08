@@ -28,6 +28,9 @@ public class CaptchaController {
     @Resource(name = "captchaProducer")
     private Producer captchaProducer;
 
+    @Resource(name = "captchaProducerMath")
+    private Producer captchaProducerMath;
+
     @Autowired
     private RedisCache redisCache;
 
@@ -36,16 +39,26 @@ public class CaptchaController {
   public Result<Map<String, String>> getCode() throws Exception {
       // 保存验证码信息
       String uuid = UUID.fastUUID().toString();
-      String capStr = null;
+      String capStr = null, code = null;
       BufferedImage image;
-      // 生成验证码
-      capStr = captchaProducer.createText();
-      image = captchaProducer.createImage(capStr);
+
+      String captchaType = "math"; // 这里可以根据需要设置验证码类型
+
+    if("math".equals(captchaType)) {
+        String capText = captchaProducerMath.createText();
+        capStr = capText.substring(0, capText.lastIndexOf("@"));
+        code = capText.substring(capText.lastIndexOf("@") + 1);
+        image = captchaProducerMath.createImage(capStr);
+      } else {
+          capStr = captchaProducer.createText();
+          code=capStr;
+          image = captchaProducer.createImage(capStr);
+      }
       // 保存验证码文本到缓存
       String key = Constants.CAPTCHA_CODE_KEY + uuid;
 
       // 存储验证码文本而不是图片对象
-      redisCache.setCacheObject(key, capStr, 60L ,TimeUnit.SECONDS);
+      redisCache.setCacheObject(key, code, 60L ,TimeUnit.SECONDS);
       // 返回验证码图片
       FastByteArrayOutputStream os = new FastByteArrayOutputStream();
       ImageIO.write(image, "jpg", os);
@@ -56,5 +69,6 @@ public class CaptchaController {
       );
         return Results.success(result);
   }
+
 
 }
