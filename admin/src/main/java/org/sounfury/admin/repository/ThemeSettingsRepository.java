@@ -2,12 +2,12 @@ package org.sounfury.admin.repository;
 
 import org.jooq.Configuration;
 import org.sounfury.jooq.mapper.JooqFieldMapper;
-import org.sounfury.jooq.tables.daos.ThemeSettingsDao;
-import org.sounfury.jooq.tables.pojos.ThemeSettings;
+import org.sounfury.blog.jooq.tables.daos.ThemeSettingsDao;
+import org.sounfury.blog.jooq.tables.pojos.ThemeSettings;
 import org.springframework.stereotype.Repository;
 
 import static org.sounfury.core.constant.Constants.DEL_FLAG;
-import static org.sounfury.jooq.tables.ThemeSettings.THEME_SETTINGS;
+import static org.sounfury.blog.jooq.tables.ThemeSettings.THEME_SETTINGS;
 
 @Repository
 public class ThemeSettingsRepository extends ThemeSettingsDao {

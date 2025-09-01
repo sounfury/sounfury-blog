@@ -1,14 +1,11 @@
 package org.sounfury.portal.repository;
 
-import org.jooq.Configuration;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.SelectConditionStep;
-import org.jooq.impl.DSL;
+
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
-import org.sounfury.jooq.tables.daos.ArticleDao;
 import org.sounfury.portal.dto.rep.HistoryCount;
 import org.sounfury.portal.dto.rep.PageArticleRep;
 import org.sounfury.portal.dto.req.CategoryPageReq;
@@ -17,17 +14,16 @@ import org.sounfury.portal.dto.req.TagPageReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.sounfury.core.constant.Constants.NOT_DEL_FLAG;
 import static org.sounfury.core.constant.Constants.STATUS_ENABLE;
-import static org.sounfury.jooq.tables.Article.ARTICLE;
-import static org.sounfury.jooq.tables.ArticleTag.ARTICLE_TAG;
+import static org.sounfury.blog.jooq.Tables.*;
+import org.sounfury.blog.jooq.tables.daos.ArticleDao;
 
 @Repository
 
-public class ArticlePortalRepository extends ArticleDao {
+public class ArticlePortalRepository extends org.sounfury.blog.jooq.tables.daos.ArticleDao {
     @Autowired
     public ArticlePortalRepository(Configuration configuration) {
         super(configuration);
@@ -38,7 +34,6 @@ public class ArticlePortalRepository extends ArticleDao {
      */
     public PageRepDto<List<PageArticleRep>> pageQueryArticle(PageReqDto pageReqDto) {
         DSLContext dsl = configuration().dsl();
-
         return JooqPageHelper.getPage(ctx().select(PageArticleRep.ARTICLE_FIELDS)
                         .from(ARTICLE)
                         .where(ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG))
@@ -132,29 +127,16 @@ public class ArticlePortalRepository extends ArticleDao {
     }
 
 
-    public List<PageArticleRep> pageQueryArticleTest(PageReqDto pageReqDto) {
-        return ctx().select(PageArticleRep.ARTICLE_FIELDS)
-                .from(ARTICLE)
-                .where(ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG))
-                .and(ARTICLE.ENABLE_STATUS.eq(STATUS_ENABLE))
-                .fetch()
-                .map(PageArticleRep.MAPPER);
-
-    }
-
     public List<HistoryCount> historyArticleCount() {
-        return ctx().select(
-                        ARTICLE.CREATE_TIME.cast(LocalDate.class)
-                                .as("date"), // 使用 cast 转换为 LocalDate
-                        DSL.count()
-                                .as("count") // 统计文章数量
-                )
-                .from(ARTICLE)
-                .where(ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG)) // 仅查询未删除的文章
-                .groupBy(ARTICLE.CREATE_TIME.cast(LocalDate.class)) // 按 LocalDate 分组
-                .orderBy(ARTICLE.CREATE_TIME.cast(LocalDate.class)
-                        .desc()) // 按时间倒序排序
-                .limit(5) // 限制结果为最近 5 个时间段
-                .fetchInto(HistoryCount.class); // 映射为自定义类
+        String sql = "SELECT DATE_FORMAT(create_time, '%Y-%m') as date, " +
+                "COUNT(*) as count " +
+                "FROM blog.article " +
+                "WHERE del_flag = ? " +
+                "GROUP BY DATE_FORMAT(create_time, '%Y-%m') " +
+                "ORDER BY date DESC " +
+                "LIMIT ?";
+
+        return ctx().resultQuery(sql, NOT_DEL_FLAG, 5)
+                    .fetchInto(HistoryCount.class);
     }
 }

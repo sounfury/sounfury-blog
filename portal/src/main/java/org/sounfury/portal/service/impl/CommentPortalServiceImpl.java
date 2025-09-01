@@ -1,10 +1,10 @@
 package org.sounfury.portal.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.sounfury.blog.jooq.tables.pojos.Comment;
 import org.sounfury.core.utils.MapstructUtils;
 import org.sounfury.jooq.page.PageRepDto;
-import org.sounfury.jooq.tables.pojos.Comment;
-import org.sounfury.jooq.tables.records.CommentRecord;
+
 import org.sounfury.portal.dto.rep.CommentTreeNode;
 import org.sounfury.portal.dto.req.CommentAddReq;
 import org.sounfury.portal.dto.req.CommentArticlePageReq;
@@ -26,7 +26,7 @@ public class CommentPortalServiceImpl implements CommentPortalService {
 
     @Override
     public PageRepDto<List<CommentTreeNode>> getCommentsByArticleId(CommentArticlePageReq commentPageReq) {
-        PageRepDto<List<CommentRecord>> comments = commentRepository.getComments(commentPageReq);
+        PageRepDto<List<org.sounfury.blog.jooq.tables.records.CommentRecord>> comments = commentRepository.getComments(commentPageReq);
         List<CommentTreeNode> commentTree = buildCommentTree(comments.getData());
         return new PageRepDto<>(comments.getTotal(), commentTree);
     }
@@ -38,13 +38,13 @@ public class CommentPortalServiceImpl implements CommentPortalService {
         commentRepository.insert(convert);
     }
 
-    private List<CommentTreeNode> buildCommentTree(List<CommentRecord> allComments) {
+    private List<CommentTreeNode> buildCommentTree(List<org.sounfury.blog.jooq.tables.records.CommentRecord> allComments) {
         // 创建结果集
         List<CommentTreeNode> result = new ArrayList<>();
 
         // 将所有评论按 ID 映射
         Map<Long, CommentTreeNode> commentMap = allComments.stream()
-                .collect(Collectors.toMap(CommentRecord::getId, record -> new CommentTreeNode(
+                .collect(Collectors.toMap(org.sounfury.blog.jooq.tables.records.CommentRecord::getId, record -> new CommentTreeNode(
                         record.getId(),
                         record.getUserId(),
                         record.getParentId(),
@@ -56,7 +56,7 @@ public class CommentPortalServiceImpl implements CommentPortalService {
                         new ArrayList<>())));
 
         // 遍历所有评论，构造父子关系
-        for (CommentRecord record : allComments) {
+        for (org.sounfury.blog.jooq.tables.records.CommentRecord record : allComments) {
             Long parentId = record.getParentId();
             CommentTreeNode currentNode = commentMap.get(record.getId());
             if (parentId == null) {

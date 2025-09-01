@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jooq.types.UInteger;
-import org.sounfury.jooq.tables.pojos.SysOssConfig;
+import org.sounfury.blog.jooq.tables.pojos.SysOssConfig;
 
 @Data
 @AllArgsConstructor

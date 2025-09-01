@@ -1,7 +1,6 @@
 package org.sounfury.portal.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.sounfury.jooq.tables.records.CategoryRecord;
 import org.sounfury.portal.dto.rep.CategoryTreeNode;
 import org.sounfury.portal.repository.CategoryPortalRepository;
 import org.sounfury.portal.service.CategoryPortalService;
@@ -19,16 +18,16 @@ public class CategoryPortalServiceImpl implements CategoryPortalService {
 
     @Override
     public List<CategoryTreeNode> getAllCategory() {
-        List<CategoryRecord> allCategories = categoryRepository.getAllCategories();
+        List<org.sounfury.blog.jooq.tables.records.CategoryRecord> allCategories = categoryRepository.getAllCategories();
         return buildCategoryTree(allCategories);
     }
 
     private List<CategoryTreeNode> buildCategoryTree(
-            List<org.sounfury.jooq.tables.records.CategoryRecord> categoryRecords) {
+            List<org.sounfury.blog.jooq.tables.records.CategoryRecord> categoryRecords) {
         // 将所有分类转换为树节点
         Map<Long, CategoryTreeNode> nodeMap = categoryRecords.stream()
                 .collect(Collectors.toMap(
-                        org.sounfury.jooq.tables.records.CategoryRecord::getId,
+                        org.sounfury.blog.jooq.tables.records.CategoryRecord::getId,
                         record -> new CategoryTreeNode(
                                 record.getId(),
                                 record.getName(),

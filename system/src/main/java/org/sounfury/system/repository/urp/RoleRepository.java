@@ -2,19 +2,17 @@ package org.sounfury.system.repository.urp;
 
 
 import org.jooq.Configuration;
-import org.sounfury.jooq.tables.daos.RoleDao;
-import org.sounfury.jooq.tables.pojos.Role;
+import org.sounfury.blog.jooq.tables.pojos.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-import static org.sounfury.jooq.tables.Role.ROLE;
-import static org.sounfury.jooq.tables.UserRoleMap.USER_ROLE_MAP;
+import static org.sounfury.blog.jooq.Tables.*;
 
 @Repository
-public class RoleRepository extends RoleDao {
+public class RoleRepository extends org.sounfury.blog.jooq.tables.daos.RoleDao {
 
     @Autowired
     public RoleRepository(Configuration configuration) {
@@ -24,7 +22,7 @@ public class RoleRepository extends RoleDao {
     /**
      * 查询某个用户的角色
      *
-     * @param username
+     * @param
      * @return
      */
     public List<Role> queryRolesByUserId(Long userId) {

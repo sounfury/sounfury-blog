@@ -19,9 +19,11 @@
 
 
     <dependencies>
+
         <dependency>
             <groupId>org.sounfury</groupId>
-            <artifactId>common-jooq</artifactId>
+            <artifactId>blog-jooq</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <dependency>

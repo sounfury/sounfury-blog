@@ -2,7 +2,7 @@ package org.sounfury.admin.service;
 
 import org.sounfury.admin.dto.req.CategoryAddReq;
 import org.sounfury.admin.dto.req.SortCategoryReq;
-import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.pojos.Category;
 import org.sounfury.portal.dto.rep.CategoryTreeNode;
 
 import java.util.List;

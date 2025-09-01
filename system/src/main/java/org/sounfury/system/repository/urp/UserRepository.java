@@ -7,8 +7,6 @@ import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
-import org.sounfury.jooq.tables.daos.UserDao;
-import org.sounfury.jooq.tables.pojos.User;
 import org.sounfury.system.dto.rep.UserPageQueryRepDTO;
 import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserPageQueryReqDTO;
@@ -23,18 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sounfury.blog.jooq.tables.pojos.User;
 import static org.jooq.impl.DSL.multiset;
 import static org.jooq.impl.DSL.select;
+import static org.sounfury.blog.jooq.Tables.*;
 import static org.sounfury.core.constant.Constants.NOT_DEL_FLAG;
 import static org.sounfury.core.constant.Constants.STATUS_ENABLE;
-import static org.sounfury.jooq.tables.Permission.PERMISSION;
-import static org.sounfury.jooq.tables.Role.ROLE;
-import static org.sounfury.jooq.tables.RolePermissionMap.ROLE_PERMISSION_MAP;
-import static org.sounfury.jooq.tables.User.USER;
-import static org.sounfury.jooq.tables.UserRoleMap.USER_ROLE_MAP;
 
 @Repository
-public class UserRepository extends UserDao {
+public class UserRepository extends org.sounfury.blog.jooq.tables.daos.UserDao {
 
 
     private final Converter converter;

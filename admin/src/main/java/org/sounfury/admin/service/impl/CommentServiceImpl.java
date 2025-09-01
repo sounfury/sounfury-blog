@@ -5,7 +5,7 @@ import org.sounfury.admin.dto.req.CommentPageReq;
 import org.sounfury.admin.repository.CommentAdminRepository;
 import org.sounfury.admin.service.CommentService;
 import org.sounfury.jooq.page.PageRepDto;
-import org.sounfury.jooq.tables.records.CommentRecord;
+import org.sounfury.blog.jooq.tables.records.CommentRecord;
 import org.sounfury.portal.dto.rep.CommentTreeNode;
 import org.springframework.stereotype.Service;
 

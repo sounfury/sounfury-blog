@@ -2,11 +2,10 @@ package org.sounfury.system.repository;
 
 import org.jooq.Configuration;
 import org.sounfury.jooq.mapper.JooqFieldMapper;
-import org.sounfury.jooq.tables.daos.SysOssDao;
 import org.sounfury.system.dto.req.SysOssReq;
 import org.springframework.stereotype.Repository;
-
-import static org.sounfury.jooq.tables.SysOss.SYS_OSS;
+import static org.sounfury.blog.jooq.tables.SysOss.SYS_OSS;
+import org.sounfury.blog.jooq.tables.daos.SysOssDao;
 
 @Repository
 public class SysOssRepository extends SysOssDao {

@@ -3,13 +3,13 @@ package org.sounfury.system.repository;
 import org.jooq.Configuration;
 import org.jooq.types.UInteger;
 import org.sounfury.jooq.mapper.JooqFieldMapper;
-import org.sounfury.jooq.tables.daos.SysOssConfigDao;
-import org.sounfury.jooq.tables.pojos.SysOssConfig;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import org.sounfury.blog.jooq.tables.daos.SysOssConfigDao;
+import org.sounfury.blog.jooq.tables.pojos.SysOssConfig;
+import static org.sounfury.blog.jooq.Tables.*;
 
-import static org.sounfury.jooq.tables.SysOssConfig.SYS_OSS_CONFIG;
 
 @Repository
 public class SysOssConfigRepository extends SysOssConfigDao {
@@ -22,9 +22,9 @@ public class SysOssConfigRepository extends SysOssConfigDao {
      *
      * @return
      */
-    public List<SysOssConfig> fetchList() {
+    public List<org.sounfury.blog.jooq.tables.pojos.SysOssConfig> fetchList() {
         return ctx().selectFrom(SYS_OSS_CONFIG)
-                .fetchInto(SysOssConfig.class);
+                .fetchInto(org.sounfury.blog.jooq.tables.pojos.SysOssConfig.class);
     }
 
 

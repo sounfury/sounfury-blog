@@ -2,15 +2,14 @@ package org.sounfury.system.repository.urp;
 
 import org.jooq.Configuration;
 
-import org.sounfury.jooq.tables.daos.RolePermissionMapDao;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.sounfury.jooq.tables.RolePermissionMap.ROLE_PERMISSION_MAP;
+import static org.sounfury.blog.jooq.Tables.*;
 
 @Repository
-public class RolePermissionMapRepository extends RolePermissionMapDao {
+public class RolePermissionMapRepository extends org.sounfury.blog.jooq.tables.daos.RolePermissionMapDao {
 
   @Autowired
   public RolePermissionMapRepository(Configuration configuration) {

@@ -7,9 +7,8 @@ import org.jooq.Record;
 import org.jooq.Result;
 
 import org.jooq.impl.DSL;
+import org.sounfury.blog.jooq.tables.pojos.Permission;
 import org.sounfury.jooq.page.PageReqDto;
-import org.sounfury.jooq.tables.daos.PermissionDao;
-import org.sounfury.jooq.tables.pojos.Permission;
 import org.sounfury.system.dto.urp.PermissionQueryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,10 +18,9 @@ import java.util.List;
 
 import static org.jooq.impl.DSL.asterisk;
 import static org.jooq.impl.DSL.noCondition;
-import static org.sounfury.jooq.tables.Permission.PERMISSION;
-
+import static org.sounfury.blog.jooq.Tables.*;
 @Repository
-public class PermissionRepository extends PermissionDao {
+public class PermissionRepository extends org.sounfury.blog.jooq.tables.daos.PermissionDao {
 
   @Autowired
   public PermissionRepository(Configuration configuration) {

@@ -10,7 +10,7 @@ import org.sounfury.admin.service.CategoryService;
 import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.convention.result.Result;
 import org.sounfury.core.convention.result.Results;
-import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.pojos.Category;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,8 +57,8 @@ public class CategoryController {
     /**
      * 删除分类
      */
-    @DeleteMapping()
-    public Result<Void> deleteCategory(@RequestParam Long id) {
+    @DeleteMapping("{id}")
+    public Result<Void> deleteCategory(@PathVariable("id") Long id) {
         if (id == 1L) {
             return Results.failure(new ClientException("默认分类不能删除"));
         }
@@ -72,9 +72,6 @@ public class CategoryController {
     @PostMapping()
     public Result<Void> addCategory(@Valid @RequestBody CategoryAddReq categoryAddReq) {
         //拿到当前登录用户的id
-        long loginId = StpUtil.getLoginIdAsLong();
-        categoryAddReq.setCreateBy(loginId);
-        categoryAddReq.setUpdateBy(loginId);
         categoryService.addCategory(categoryAddReq);
         return Results.success();
     }

@@ -15,7 +15,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-ai.version>1.0.0-M5</spring-ai.version>
+        <spring-ai.version>1.0.1</spring-ai.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -32,15 +32,141 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-redis</artifactId>
+        </dependency>
+
+        <!-- Handlebars template engine -->
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-starter-model-vertex-ai-gemini</artifactId>-->
+<!--        </dependency>-->
+
+        <dependency>
             <groupId>org.sounfury</groupId>
             <artifactId>common-web</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <groupId>org.sounfury</groupId>
+            <artifactId>common-jooq</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-chat-memory-repository-jdbc</artifactId>
+        </dependency>
 
     </dependencies>
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <name>Central Portal Snapshots</name>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>${jooq.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbc>
+                        <driver>com.mysql.cj.jdbc.Driver</driver>
+                        <url>jdbc:mysql://localhost:3306/aki?useUnicode=true&amp;characterEncoding=UTF-8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai</url>
+                        <user>root</user>
+                        <password>a2133266</password>
+                    </jdbc>
+                    <generator>
+                        <database>
+                            <name>org.jooq.meta.mysql.MySQLDatabase</name>
+                            <inputSchema>aki</inputSchema>
+                            <forcedTypes>
+                                <forcedType>
+                                    <name>BIGINT</name>
+                                    <includeTypes>.*INT\s*UNSIGNED.*</includeTypes>
+                                </forcedType>
+                            </forcedTypes>
+                        </database>
+                        <target>
+                            <packageName>org.sounfury.aki.jooq</packageName>
+                            <directory>target/generated-sources/jooq</directory>
+                        </target>
 
+                        <generate>
+                            <daos>true</daos> <!-- 生成 DAO 类 -->
+                            <pojos>true</pojos> <!-- 生成 POJO 类 -->
+                            <fluentSetters>true</fluentSetters> <!-- 为 POJO 类启用流式 setter -->
+                            <springAnnotations>true</springAnnotations> <!-- 为 DAO 添加 Spring 注解 -->
+                            <immutablePojos>false</immutablePojos> <!-- 生成可变的 POJO 类 -->
+                        </generate>
+
+                        <strategy>
+                            <name>org.jooq.codegen.DefaultGeneratorStrategy</name>
+                            <matchers>
+                                <tables>
+                                    <table>
+                                        <pojoClass>
+                                            <transform>PASCAL</transform>
+                                            <expression>$0_Pojo</expression>
+                                        </pojoClass>
+                                    </table>
+                                </tables>
+                            </matchers>
+                        </strategy>
+
+                    </generator>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>

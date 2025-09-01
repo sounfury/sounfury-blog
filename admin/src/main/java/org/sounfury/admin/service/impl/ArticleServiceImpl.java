@@ -14,8 +14,8 @@ import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
-import org.sounfury.jooq.tables.pojos.Article;
-import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.pojos.Article;
+import org.sounfury.blog.jooq.tables.pojos.Category;
 import org.sounfury.portal.dto.rep.ArticleCategoryDto;
 import org.sounfury.portal.dto.rep.TagPortalDto;
 import org.sounfury.portal.repository.SiteInfoPortalRepository;
@@ -39,8 +39,8 @@ public class ArticleServiceImpl implements ArticleService {
 
 
     @Override
-    @Transactional
-    public void addArticle(ArticleAddReq articleAddReq) {
+    @Transactional(rollbackFor = Exception.class)
+    public long addArticle(ArticleAddReq articleAddReq) {
 
         Article convert = MapstructUtils.convert(articleAddReq, Article.class);
         long articleId = articleRepository.insertArticle(convert);
@@ -53,12 +53,12 @@ public class ArticleServiceImpl implements ArticleService {
 
         siteInfoPortalRepository.statusArticleInfo(totalWords, articleCount);
         CacheUtils.clear(SITE_INFO);
-
+        return articleId;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateArticle(ArticleUpdateReq articleUpdateReq) {
+    public long updateArticle(ArticleUpdateReq articleUpdateReq) {
 
         Article article = checkArticleExist(articleUpdateReq.getId());
         Article convert = MapstructUtils.convert(articleUpdateReq, Article.class);
@@ -70,9 +70,11 @@ public class ArticleServiceImpl implements ArticleService {
                 .length();
         siteInfoPortalRepository.statusUpdateArticleInfo(newTotalWords);
         CacheUtils.clear(SITE_INFO);
+
+        return articleUpdateReq.getId();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteArticle(Long id) {
         Article article = checkArticleExist(id);

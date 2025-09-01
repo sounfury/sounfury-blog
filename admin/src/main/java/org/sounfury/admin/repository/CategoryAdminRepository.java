@@ -3,16 +3,16 @@ package org.sounfury.admin.repository;
 import org.jooq.Configuration;
 import org.jooq.UpdateConditionStep;
 import org.sounfury.jooq.mapper.JooqFieldMapper;
-import org.sounfury.jooq.tables.daos.CategoryDao;
-import org.sounfury.jooq.tables.pojos.Category;
-import org.sounfury.jooq.tables.records.CategoryRecord;
+import org.sounfury.blog.jooq.tables.daos.CategoryDao;
+import org.sounfury.blog.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.records.CategoryRecord;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.sounfury.core.constant.Constants.*;
-import static org.sounfury.jooq.tables.Category.CATEGORY;
+import static org.sounfury.blog.jooq.tables.Category.CATEGORY;
 
 @Repository
 public class CategoryAdminRepository extends CategoryDao {
@@ -64,5 +64,12 @@ public class CategoryAdminRepository extends CategoryDao {
         ctx().insertInto(CATEGORY)
                 .set(JooqFieldMapper.toFieldMap(convert, CATEGORY))
                 .execute();
+    }
+
+    public boolean isExistByName(String name) {
+        return ctx().fetchExists(ctx().selectOne()
+                .from(CATEGORY)
+                .where(CATEGORY.NAME.eq(name))
+                .and(CATEGORY.DEL_FLAG.eq(NOT_DEL_FLAG)));
     }
 }

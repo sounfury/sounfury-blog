@@ -2,7 +2,7 @@ package org.sounfury.portal.dto.rep;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.sounfury.jooq.tables.pojos.SiteCreatorInfo;
+import org.sounfury.blog.jooq.tables.pojos.SiteCreatorInfo;
 
 @Data
 @AllArgsConstructor

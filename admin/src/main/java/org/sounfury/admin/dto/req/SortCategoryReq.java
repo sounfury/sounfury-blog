@@ -4,7 +4,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.pojos.Category;
 
 @Data
 @AllArgsConstructor

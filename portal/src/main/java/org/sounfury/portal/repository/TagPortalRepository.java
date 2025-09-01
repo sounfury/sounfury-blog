@@ -2,21 +2,15 @@ package org.sounfury.portal.repository;
 
 import org.jooq.Configuration;
 import org.jooq.impl.DSL;
-import org.jooq.types.UInteger;
-import org.sounfury.jooq.tables.daos.TagDao;
-import org.sounfury.jooq.tables.pojos.Tag;
 import org.sounfury.portal.dto.rep.TagsQueryRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
+import static org.sounfury.blog.jooq.Tables.*;
 import java.util.List;
 
 import static org.sounfury.core.constant.Constants.NOT_DEL_FLAG;
-import static org.sounfury.jooq.tables.ArticleTag.ARTICLE_TAG;
-import static org.sounfury.jooq.tables.Tag.TAG;
-
 @Repository
-public class TagPortalRepository extends TagDao {
+public class TagPortalRepository extends org.sounfury.blog.jooq.tables.daos.TagDao {
 
     @Autowired
     public TagPortalRepository(Configuration configuration) {
@@ -26,7 +20,7 @@ public class TagPortalRepository extends TagDao {
     /**
      * 根据文章id查询该文章下的标签
      */
-    public List<Tag> fetchByArticleId(Long articleId) {
+    public List<org.sounfury.blog.jooq.tables.pojos.Tag> fetchByArticleId(Long articleId) {
         return ctx().select(TAG.asterisk())
                 .from(TAG)
                 .where(TAG.ID.in(
@@ -35,7 +29,7 @@ public class TagPortalRepository extends TagDao {
                                 .where(ARTICLE_TAG.ARTICLE_ID.eq(articleId))
                 ))
                 .and(TAG.DEL_FLAG.eq(NOT_DEL_FLAG))
-                .fetchInto(Tag.class);
+                .fetchInto(org.sounfury.blog.jooq.tables.pojos.Tag.class);
     }
 
 

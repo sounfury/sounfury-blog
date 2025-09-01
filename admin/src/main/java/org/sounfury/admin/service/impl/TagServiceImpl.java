@@ -2,7 +2,7 @@ package org.sounfury.admin.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.sounfury.admin.service.TagService;
-import org.sounfury.jooq.tables.pojos.Tag;
+import org.sounfury.blog.jooq.tables.pojos.Tag;
 import org.sounfury.portal.dto.rep.TagsQueryRep;
 import org.sounfury.portal.repository.TagPortalRepository;
 import org.springframework.stereotype.Service;

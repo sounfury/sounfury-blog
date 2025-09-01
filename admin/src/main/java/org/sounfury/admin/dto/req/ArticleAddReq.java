@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sounfury.jooq.tables.pojos.Article;
+import org.sounfury.blog.jooq.tables.pojos.Article;
 
 import java.time.LocalDateTime;
 import java.util.List;

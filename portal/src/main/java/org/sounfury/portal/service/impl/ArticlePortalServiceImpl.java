@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
-import org.sounfury.jooq.tables.pojos.Article;
-import org.sounfury.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.pojos.Article;
+import org.sounfury.blog.jooq.tables.pojos.Category;
 import org.sounfury.portal.dto.rep.*;
 import org.sounfury.portal.dto.req.CategoryPageReq;
 import org.sounfury.portal.dto.req.HistoryPageArticlesReq;
@@ -48,7 +48,6 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
     @Override
     public PageRepDto<List<PageArticleRep>> pageQueryArticle(PageReqDto pageReqDto) {
         PageRepDto<List<PageArticleRep>> listPageRepDto = articleRepository.pageQueryArticle(pageReqDto);
-        siteInfoPortalRepository.updateViewCount();
         return getPageTagsAndCategory(listPageRepDto);
     }
 
@@ -89,12 +88,14 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
 
     @Override
     public List<PageArticleRep> pageQueryArticleTest(PageReqDto pageReqDto) {
-        return articleRepository.pageQueryArticleTest(pageReqDto);
+        return null;
     }
 
     @Override
     public List<HistoryCount> historyArticleCount() {
-        return articleRepository.historyArticleCount();
+        List<HistoryCount> historyCounts = articleRepository.historyArticleCount();
+        System.out.println(historyCounts);
+        return historyCounts;
     }
 
     @NotNull

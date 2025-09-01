@@ -16,7 +16,9 @@ import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.sounfury.admin.common.constant.Constants.DEFAULT_CATEGORY_ID;
 
@@ -37,15 +39,17 @@ public class ArticleAdminController {
      * @return
      */
     @PostMapping
-    public Result<Void> addArticle(@RequestBody @Valid ArticleAddReq articleAddReq) {
+    public Result<Map<String, Long>> addArticle(@RequestBody @Valid ArticleAddReq articleAddReq) {
         if (articleAddReq.getCategoryId() == null) {
             articleAddReq.setCategoryId(DEFAULT_CATEGORY_ID);
         } else if (categoryService.isExist(articleAddReq.getCategoryId())) {
             Results.failure(new ClientException("分类不存在"));
         }
 
-        articleService.addArticle(articleAddReq);
-        return Results.success();
+        long articleId = articleService.addArticle(articleAddReq);
+        Map<String,Long> resultMap=new HashMap<>();
+        resultMap.put("id",articleId);
+        return Results.success(resultMap);
     }
 
     /**
@@ -55,12 +59,12 @@ public class ArticleAdminController {
      * @return
      */
     @PutMapping
-    public Result<Void> updateArticle(@RequestBody @Valid ArticleUpdateReq articleUpdateReq) {
+    public Result<Long> updateArticle(@RequestBody @Valid ArticleUpdateReq articleUpdateReq) {
         if (categoryService.isExist(articleUpdateReq.getCategoryId())) {
             Results.failure(new ClientException("要变更的分类不存在"));
         }
-        articleService.updateArticle(articleUpdateReq);
-        return Results.success();
+        long articleId = articleService.updateArticle(articleUpdateReq);
+        return Results.success(articleId);
     }
 
     /**

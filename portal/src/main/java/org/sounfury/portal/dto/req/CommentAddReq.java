@@ -4,8 +4,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.jooq.types.UInteger;
-import org.sounfury.jooq.tables.pojos.Comment;
+import org.sounfury.blog.jooq.tables.pojos.Comment;
 
 import java.time.LocalDateTime;
 

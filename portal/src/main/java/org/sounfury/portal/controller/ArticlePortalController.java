@@ -50,13 +50,6 @@ public class ArticlePortalController {
     public Result<PageRepDto<List<PageArticleRep>>> pageQueryArticle(PageReqDto pageReqDto) {
         return Results.success(articleService.pageQueryArticle(pageReqDto));
     }
-    /**
-     * 测试
-     */
-    @GetMapping("/page/test")
-    public Result<List<PageArticleRep>> pageQueryArticleTest(PageReqDto pageReqDto) {
-        return Results.success(articleService.pageQueryArticleTest(pageReqDto));
-    }
 
     /**
      * 查询历史文章

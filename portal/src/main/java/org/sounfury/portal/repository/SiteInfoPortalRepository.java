@@ -1,17 +1,15 @@
 package org.sounfury.portal.repository;
 
 import org.jooq.Configuration;
-import org.sounfury.jooq.tables.daos.SiteInfoDao;
+import org.jooq.impl.DSL;
 import org.sounfury.portal.dto.rep.InfoCountRep;
 import org.springframework.stereotype.Repository;
 
-import static org.sounfury.jooq.tables.Article.ARTICLE;
-import static org.sounfury.jooq.tables.Category.CATEGORY;
-import static org.sounfury.jooq.tables.SiteInfo.SITE_INFO;
-import static org.sounfury.jooq.tables.Tag.TAG;
+import static org.jooq.impl.DSL.coalesce;
+import static org.sounfury.blog.jooq.Tables.*;
 
 @Repository
-public class SiteInfoPortalRepository extends SiteInfoDao {
+public class SiteInfoPortalRepository extends org.sounfury.blog.jooq.tables.daos.SiteInfoDao {
     public SiteInfoPortalRepository(Configuration configuration) {
         super(configuration);
     }
@@ -40,7 +38,7 @@ public class SiteInfoPortalRepository extends SiteInfoDao {
 
     public void updateViewCount() {
         ctx().update(SITE_INFO)
-                .set(SITE_INFO.TOTAL_VISITS, SITE_INFO.TOTAL_VISITS.add(1L))
-                .execute();
+             .set(SITE_INFO.TOTAL_VISITS, DSL.coalesce(SITE_INFO.TOTAL_VISITS, DSL.val(0L)).add(1L))
+             .execute();
     }
 }

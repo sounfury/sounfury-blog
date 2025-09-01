@@ -14,12 +14,12 @@ public interface ArticleService {
     /**
      * 添加文章
      */
-    void addArticle(ArticleAddReq articleAddReq);
+    long addArticle(ArticleAddReq articleAddReq);
 
     /**
      * 更新文章
      */
-    void updateArticle(ArticleUpdateReq articleUpdateReq);
+    long updateArticle(ArticleUpdateReq articleUpdateReq);
 
     /**
      * 删除文章

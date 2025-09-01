@@ -35,7 +35,6 @@
             <artifactId>blog-portal</artifactId>
             <version>${revision}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -54,5 +53,8 @@
             </plugin>
         </plugins>
     </build>
+
+
+
 
 </project>

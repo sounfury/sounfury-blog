@@ -12,6 +12,6 @@ import java.util.Map;
 @NoArgsConstructor
 public class HistoryCount implements java.io.Serializable {
     private static final long serialVersionUID = 1123124L;
-    private LocalDate date; // 日期
+    private String date; // 日期
     private Integer count; // 文章数量
 }

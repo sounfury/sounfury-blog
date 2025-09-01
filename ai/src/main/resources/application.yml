@@ -1,0 +1,48 @@
+server:
+  port: 8090    # 服务端口，默认8080，可自定义
+
+spring:
+  application:
+    name: aki
+  threads:
+    virtual:
+      enabled: true # 启用虚拟线程
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+    openai:
+      chat:
+        options:
+          model: deepseek-ai/DeepSeek-V3
+      base-url: https://api.siliconflow.cn/v1
+      api-key: sk-nvvdrwdosspjsmvqwyzpydppglryorujwzynmxilfqumfqad
+##数据库
+  datasource:
+    url: jdbc:mysql://localhost:3306/aki?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: a2133266
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      timeout: 10
+# 日志级别（可选）
+logging:
+  level:
+    root: info
+
+# Aki应用配置
+aki:
+  llm:
+    default-character-id: bartender  # 默认角色ID，可配置
+  debug:
+    # 提示词捕获配置
+    prompt-capture:
+      enabled: true  # 是否启用提示词捕获
+      max-length: 500  # 最大显示长度
+      include-sensitive: false  # 是否包含敏感信息

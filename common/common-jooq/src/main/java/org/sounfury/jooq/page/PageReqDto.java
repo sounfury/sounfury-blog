@@ -23,6 +23,13 @@ import static org.sounfury.core.convention.errorcode.BaseErrorCode.USER_PAGE_SIZ
 
 @Data
 @NoArgsConstructor
+
+/**
+ * 前端传入
+ *   page: 1,
+ *   size: 10,
+ *   "sortBy[update_time]": "DESC"
+ */
 public class PageReqDto {
 
   public static final String REGEX = "^[a-zA-Z][a-zA-Z0-9_]*$";
@@ -72,7 +79,6 @@ public class PageReqDto {
   public static PageReqDto of(int page, int size) {
     return new PageReqDto(page, size);
   }
-
   public static PageReqDto of(int page, int size, Map<String, Direction> sortBy) {
     return new PageReqDto(page, size, sortBy);
   }

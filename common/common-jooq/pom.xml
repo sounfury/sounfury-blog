@@ -49,58 +49,7 @@
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
-
     </dependencies>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-codegen-maven</artifactId>
-                <version>${jooq.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jdbc>
-                        <driver>com.mysql.cj.jdbc.Driver</driver>
-                        <url>jdbc:mysql://localhost:3306/blog?useUnicode=true&amp;characterEncoding=UTF-8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai</url>
-                        <user>root</user>
-                        <password>a2133266</password>
-                    </jdbc>
-                    <generator>
-                        <database>
-                            <name>org.jooq.meta.mysql.MySQLDatabase</name>
-                            <inputSchema>blog</inputSchema>
-                                <forcedTypes>
-                                    <forcedType>
-                                        <name>BIGINT</name>
-                                        <includeTypes>.*INT\s*UNSIGNED.*</includeTypes>
-                                    </forcedType>
-                            </forcedTypes>
-                        </database>
-                        <target>
-                            <packageName>org.sounfury.jooq</packageName>
-                            <directory>target/generated-sources/jooq</directory>
-                        </target>
-
-                        <generate>
-                            <daos>true</daos> <!-- 生成 DAO 类 -->
-                            <pojos>true</pojos> <!-- 生成 POJO 类 -->
-                            <fluentSetters>true</fluentSetters> <!-- 为 POJO 类启用流式 setter -->
-                            <springAnnotations>true</springAnnotations> <!-- 为 DAO 添加 Spring 注解 -->
-                            <immutablePojos>false</immutablePojos> <!-- 生成可变的 POJO 类 -->
-                        </generate>
-                    </generator>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

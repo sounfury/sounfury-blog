@@ -7,14 +7,14 @@ import lombok.Data;
 import org.jooq.Record;
 import org.jooq.RecordMapper;
 import org.jooq.SelectField;
-import org.sounfury.jooq.tables.pojos.Article;
+import org.sounfury.blog.jooq.tables.pojos.Article;
 import org.sounfury.portal.dto.rep.ArticleCategoryDto;
 import org.sounfury.portal.dto.rep.TagPortalDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.sounfury.jooq.tables.Article.ARTICLE;
+import static org.sounfury.blog.jooq.tables.Article.ARTICLE;
 
 @AllArgsConstructor
 @Builder

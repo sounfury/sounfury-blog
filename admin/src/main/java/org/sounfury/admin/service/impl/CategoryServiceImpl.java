@@ -7,9 +7,10 @@ import org.sounfury.admin.dto.req.SortCategoryReq;
 import org.sounfury.admin.repository.ArticleAdminRepository;
 import org.sounfury.admin.repository.CategoryAdminRepository;
 import org.sounfury.admin.service.CategoryService;
+import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
-import org.sounfury.jooq.tables.pojos.Category;
-import org.sounfury.jooq.tables.records.CategoryRecord;
+import org.sounfury.blog.jooq.tables.pojos.Category;
+import org.sounfury.blog.jooq.tables.records.CategoryRecord;
 import org.sounfury.portal.dto.rep.CategoryTreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +31,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private List<CategoryTreeNode> buildCategoryTree(
-            List<org.sounfury.jooq.tables.records.CategoryRecord> categoryRecords) {
+            List<org.sounfury.blog.jooq.tables.records.CategoryRecord> categoryRecords) {
         // 将所有分类转换为树节点
         Map<Long, CategoryTreeNode> nodeMap = categoryRecords.stream()
                 .collect(Collectors.toMap(
-                        org.sounfury.jooq.tables.records.CategoryRecord::getId,
+                        org.sounfury.blog.jooq.tables.records.CategoryRecord::getId,
                         record -> new CategoryTreeNode(
                                 record.getId(),
                                 record.getName(),
@@ -67,8 +68,11 @@ public class CategoryServiceImpl implements CategoryService {
         long userId = StpUtil.getLoginIdAsLong();
         convert.setCreateBy(userId);
         convert.setUpdateBy(userId);
+        //检查是否重名
+        if (categoryAdminRepository.isExistByName(convert.getName())) {
+            throw new ClientException("分类名称已存在");
+        }
         categoryAdminRepository.insertCategory(convert);
-
     }
 
     @Override
@@ -85,12 +89,12 @@ public class CategoryServiceImpl implements CategoryService {
         //级联删除，把所有子分类也删除
         //先查询出所有子分类
         List<Long> allChildIds = buildChildrenTree(id);
-        allChildIds.add(id);
-
-        categoryAdminRepository.deleteBatchByIds(allChildIds);
+        if(allChildIds.isEmpty()) {
+            allChildIds=new ArrayList<>();
+        }
         //删除分类和文章的关联关系,即更新文章的分类id为默认分类
-        articleAdminRepository.updateCategoryToDefault(allChildIds);
-
+        allChildIds.add(id);
+        categoryAdminRepository.deleteBatchByIds(allChildIds);
     }
 
     @Override

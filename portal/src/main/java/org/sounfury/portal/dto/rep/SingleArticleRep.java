@@ -3,7 +3,7 @@ package org.sounfury.portal.dto.rep;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.sounfury.jooq.tables.pojos.Article;
+import org.sounfury.blog.jooq.tables.pojos.Article;
 
 import java.time.LocalDateTime;
 import java.util.List;

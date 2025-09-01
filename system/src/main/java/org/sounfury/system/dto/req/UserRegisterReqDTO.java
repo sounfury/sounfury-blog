@@ -4,7 +4,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.sounfury.jooq.tables.pojos.User;
+import org.sounfury.blog.jooq.tables.pojos.User;
 
 @Data
 @AutoMapper(target = User.class)

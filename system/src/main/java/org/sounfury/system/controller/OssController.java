@@ -36,7 +36,6 @@ public class OssController {
            throw new ClientException("上传文件不能为空");
         }
         SysOssDto oss = ossService.upload(file);
-        System.out.println(oss);
         SysOssUploadRep uploadVo = new SysOssUploadRep();
         uploadVo.setUrl(oss.getUrl());
         uploadVo.setFileName(oss.getOriginalName());

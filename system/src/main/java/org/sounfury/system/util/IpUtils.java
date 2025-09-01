@@ -43,23 +43,7 @@ public static String getExternalIp(HttpServletRequest request) {
 
         // 本地IP或无法获取时，尝试从外部服务获取
         if (CharSequenceUtil.isBlank(ip) || "127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
-            // 发送 GET 请求
-            String url = "https://www.ip.cn/api/index?ip&type=0";
-            HttpResponse httpResponse = HttpRequest.get(url)
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                .timeout(3000)
-                .execute();
-            String response = httpResponse.body();
-
-            // 解析返回的 JSON 数据
-            JSONObject jsonResponse = JSONUtil.parseObj(response);
-
-            // 提取 IP 地址
-            String externalIp = jsonResponse.getStr("ip");
-
-            if (CharSequenceUtil.isNotBlank(externalIp)) {
-                return externalIp;
-            }
+          return null;
         }
 
         // 处理多个IP的情况，取第一个非unknown的IP

@@ -3,9 +3,6 @@ package org.sounfury.portal.dto.rep;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sounfury.core.convention.exception.ServiceException;
-import org.sounfury.jooq.tables.records.CommentRecord;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

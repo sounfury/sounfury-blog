@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@AutoMapper(target = org.sounfury.jooq.tables.pojos.Category.class)
+@AutoMapper(target = org.sounfury.blog.jooq.tables.pojos.Category.class)
 public class CategoryAddReq {
     @NotBlank(message = "分类名称不能为空")
     private String name;

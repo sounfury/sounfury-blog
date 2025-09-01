@@ -9,6 +9,7 @@
     <version>${revision}</version>
 
     <modules>
+        <module>blog-jooq</module>
         <module>admin</module>
         <module>common</module>
         <module>portal</module>

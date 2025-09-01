@@ -6,14 +6,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
+import org.sounfury.blog.jooq.tables.pojos.User;
+import org.sounfury.blog.jooq.tables.pojos.UserRoleMap;
 import org.sounfury.core.constant.Constants;
 import org.sounfury.core.convention.exception.ClientException;
 import org.sounfury.core.utils.MapstructUtils;
 import org.sounfury.core.utils.StringUtils;
-import org.sounfury.jooq.tables.pojos.User;
-import org.sounfury.jooq.tables.pojos.UserRoleMap;
-import org.sounfury.satoken.util.TokenPropertiesUtil;
-import org.sounfury.system.common.enums.RoleEnum;
 import org.sounfury.system.dto.req.ChangePwdReqDTO;
 import org.sounfury.system.dto.req.UserLoginReqDTO;
 import org.sounfury.system.dto.req.UserRegisterReqDTO;
@@ -53,7 +51,7 @@ public class LoginServiceImpl implements LoginService {
         Long id = userRepository.insertUser(
                 Objects.requireNonNull(MapstructUtils.convert(requestParam, User.class)));
         userRoleMapRepository.insert(new UserRoleMap().setUserId(id)
-                .setRoleId(EDITOR.getId()));
+                                                      .setRoleId(EDITOR.getId()));
     }
 
     @Override

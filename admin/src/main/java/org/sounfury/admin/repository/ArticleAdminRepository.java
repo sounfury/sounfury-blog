@@ -1,15 +1,17 @@
 package org.sounfury.admin.repository;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.sounfury.admin.dto.rep.ArticlePageRep;
+import org.sounfury.blog.jooq.tables.pojos.Article;
 import org.sounfury.jooq.mapper.JooqFieldMapper;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
-import org.sounfury.jooq.tables.daos.ArticleDao;
-import org.sounfury.jooq.tables.pojos.Article;
+import static org.sounfury.blog.jooq.Tables.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -18,11 +20,11 @@ import java.util.Map;
 
 import static org.sounfury.admin.common.constant.Constants.DEFAULT_CATEGORY_ID;
 import static org.sounfury.core.constant.Constants.*;
-import static org.sounfury.jooq.tables.Article.ARTICLE;
+import static org.sounfury.blog.jooq.tables.Article.ARTICLE;
 
 @Repository
 
-public class ArticleAdminRepository extends ArticleDao {
+public class ArticleAdminRepository extends org.sounfury.blog.jooq.tables.daos.ArticleDao {
     @Autowired
     public ArticleAdminRepository(Configuration configuration) {
         super(configuration);
@@ -78,6 +80,5 @@ public class ArticleAdminRepository extends ArticleDao {
         return ctx().fetchCount(ARTICLE, ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG)
                 .and(ARTICLE.ENABLE_STATUS.eq(STATUS_ENABLE)));
     }
-
 
 }
