@@ -9,6 +9,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
  * 根据存储类型创建不同的记忆Advisor实现
  */
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class MemoryAdvisorFactory {
 
@@ -34,8 +35,8 @@ public class MemoryAdvisorFactory {
         }
 
         return switch (sessionMemoryPolicy.getStorageType()) {
-            case SESSION_ONLY -> createSessionMemoryAdvisor(sessionMemoryPolicy);
-            case PERSISTENT -> createDatabaseMemoryAdvisor(sessionMemoryPolicy);
+            case SESSION_ONLY -> createSessionMemoryAdvisor();
+            case PERSISTENT -> createDatabaseMemoryAdvisor();
         };
     }
     
@@ -43,7 +44,7 @@ public class MemoryAdvisorFactory {
      * 创建会话内存Advisor（游客使用）
      * 使用InMemoryChatMemoryRepository，页面刷新即清除
      */
-    private Advisor createSessionMemoryAdvisor(SessionMemoryPolicy policy) {
+    private Advisor createSessionMemoryAdvisor() {
 
         try {
             // 为每个会话创建独立的内存存储
@@ -69,7 +70,7 @@ public class MemoryAdvisorFactory {
     /**
      * 创建数据库记忆Advisor（站长使用）
      */
-    private Advisor createDatabaseMemoryAdvisor(SessionMemoryPolicy policy) {
+    private Advisor createDatabaseMemoryAdvisor() {
 
         try {
             // 使用配置好的JDBC ChatMemory，conversationId由应用层传递
@@ -83,16 +84,6 @@ public class MemoryAdvisorFactory {
         }
     }
 
-    /**
-     * 创建混合记忆Advisor（未来扩展）
-     */
-    private Advisor createHybridMemoryAdvisor(SessionMemoryPolicy policy) {
-        log.debug("混合记忆模式暂未实现，降级为会话内存");
-
-        // TODO: 实现混合存储策略
-        // 例如：短期记忆用内存，长期记忆用数据库
-        return createSessionMemoryAdvisor(policy);
-    }
     
     /**
      * 创建降级的会话内存Advisor

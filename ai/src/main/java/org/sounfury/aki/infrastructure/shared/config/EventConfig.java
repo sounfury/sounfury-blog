@@ -2,6 +2,7 @@ package org.sounfury.aki.infrastructure.shared.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.domain.shared.event.DomainEvent;
+import org.sounfury.aki.infrastructure.shared.event.DomainEventWrapper;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,8 @@ public class EventConfig {
      */
     @EventListener
     @Async
-    public void handleDomainEvent(DomainEvent event) {
+    public void handleDomainEvent(DomainEventWrapper wrapper) {
+        DomainEvent event = wrapper.getDomainEvent();
         log.info("处理领域事件: {} [{}] 发生时间: {}", 
                 event.getEventType(), 
                 event.getEventId(), 

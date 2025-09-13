@@ -2,6 +2,7 @@ package org.sounfury.aki.domain.prompt.persona.event;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.sounfury.aki.domain.shared.event.DomainEvent;
 
 import java.time.LocalDateTime;
 
@@ -10,8 +11,7 @@ import java.time.LocalDateTime;
  * 当角色信息被更新时触发
  */
 @Getter
-@Builder
-public class CharacterUpdated {
+public class CharacterUpdated extends DomainEvent {
     
     /**
      * 角色ID
@@ -32,4 +32,13 @@ public class CharacterUpdated {
      * 事件时间戳
      */
     private final LocalDateTime timestamp;
+    
+    @Builder
+    public CharacterUpdated(String characterId, String characterName, String updateType, LocalDateTime timestamp) {
+        super("CharacterUpdated");
+        this.characterId = characterId;
+        this.characterName = characterName;
+        this.updateType = updateType;
+        this.timestamp = timestamp;
+    }
 }

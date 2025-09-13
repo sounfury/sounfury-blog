@@ -1,10 +1,13 @@
 package org.sounfury.aki.api;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.application.conversation.dto.*;
 import org.sounfury.aki.application.conversation.service.ConversationApplicationService;
+import org.sounfury.core.convention.result.Result;
+import org.sounfury.core.convention.result.Results;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Flux;
@@ -17,6 +20,7 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai/conversation")
+@SaIgnore
 public class ConversationController {
 
     private final ConversationApplicationService conversationApplicationService;
@@ -27,10 +31,10 @@ public class ConversationController {
      * @return 会话开始响应
      */
     @PostMapping("/start")
-    public SessionStartResponse start(@Valid @RequestBody SessionStartRequest request) {
+    public Result<SessionStartResponse> start(@Valid @RequestBody SessionStartRequest request) {
         log.info("开始新会话，模式: {}, 角色: {}, 是否站长: {}", 
                 request.getMode(), request.getCharacterId(), request.getIsOwner());
-        return conversationApplicationService.startSession(request);
+        return Results.success(conversationApplicationService.startSession(request));
     }
 
     /**
@@ -40,10 +44,10 @@ public class ConversationController {
      * @return 聊天响应
      */
     @PostMapping("/chat")
-    public ChatResponse chat(@Valid @RequestBody ChatRequest request) {
+    public Result<ChatResponse> chat(@Valid @RequestBody ChatRequest request) {
         log.debug("处理对话消息，会话ID: {}, 用户: {}", 
                 request.getSessionId(), request.getUserName());
-        return conversationApplicationService.chat(request);
+        return Results.success(conversationApplicationService.chat(request));
     }
 
     /**
@@ -66,8 +70,8 @@ public class ConversationController {
      * @return 会话信息
      */
     @GetMapping("/session/{sessionId}")
-    public ConversationApplicationService.SessionInfo getSessionInfo(@PathVariable String sessionId) {
-        return conversationApplicationService.getSessionInfo(sessionId);
+    public Result<ConversationApplicationService.SessionInfo> getSessionInfo(@PathVariable String sessionId) {
+        return Results.success(conversationApplicationService.getSessionInfo(sessionId));
     }
 
     

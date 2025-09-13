@@ -91,6 +91,14 @@ public class PromptRenderService {
     }
 
     /**
+     * 构建基础上下文（不包含角色信息）
+     * 用于系统级提示词渲染
+     */
+    public PromptContext buildBaseContext() {
+        return PromptContext.builder().build();
+    }
+
+    /**
      * 构建用户和角色上下文
      */
     public PromptContext buildUserCharContext(Persona persona) {

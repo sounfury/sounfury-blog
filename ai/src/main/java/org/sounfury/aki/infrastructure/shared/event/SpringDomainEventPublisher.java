@@ -23,9 +23,13 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
     
     @Override
     public void publish(DomainEvent event) {
+
+        System.out.println("Publishing domain event: " + event);
         try {
-            log.debug("发布领域事件: {}", event);
-            springEventPublisher.publishEvent(event);
+            System.out.println("Publishing domain event: " + event);
+            // 将DomainEvent包装为ApplicationEvent
+            DomainEventWrapper wrapper = new DomainEventWrapper(event);
+            springEventPublisher.publishEvent(wrapper);
             log.debug("领域事件发布成功: {}", event.getEventType());
         } catch (Exception e) {
             log.error("发布领域事件失败: {}", event, e);
@@ -50,7 +54,9 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
     public void publishAsync(DomainEvent event) {
         try {
             log.debug("异步发布领域事件: {}", event);
-            springEventPublisher.publishEvent(event);
+            // 将DomainEvent包装为ApplicationEvent
+            DomainEventWrapper wrapper = new DomainEventWrapper(event);
+            springEventPublisher.publishEvent(wrapper);
             log.debug("异步领域事件发布成功: {}", event.getEventType());
         } catch (Exception e) {
             log.error("异步发布领域事件失败: {}", event, e);

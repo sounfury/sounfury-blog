@@ -3,19 +3,18 @@ package org.sounfury.aki.infrastructure.llm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.domain.llm.service.CallLlmService;
-import org.sounfury.aki.domain.conversation.session.Session;
-import org.sounfury.aki.domain.conversation.session.SessionId;
-import org.sounfury.aki.domain.conversation.session.repository.SessionRepository;
-import org.sounfury.aki.domain.conversation.session.ConversationMode;
+import org.sounfury.aki.contracts.plan.RequestPlan;
+import org.sounfury.aki.domain.llm.tools.service.ToolConfigurationService;
 import org.sounfury.aki.infrastructure.llm.factory.ChatClientHolder;
-import org.sounfury.aki.infrastructure.shared.context.UserContextHolder;
-import org.sounfury.aki.infrastructure.llm.advisor.factory.MemoryAdvisorFactory;
-import org.sounfury.aki.domain.conversation.session.SessionMemoryPolicy;
+import org.sounfury.aki.infrastructure.llm.advisor.SpringAiAdvisorAdapter;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -23,132 +22,37 @@ import reactor.core.publisher.Flux;
 public class CallLlmServiceImpl implements CallLlmService {
 
     private final ChatClientHolder chatClientHolder;
-    private final SessionRepository sessionRepository;
-    private final MemoryAdvisorFactory memoryAdvisorFactory;
-
-    @Override
-    public String sendMessage(String sessionId, String characterId, String message) {
-        try {
-            // 1. 获取指定角色的对话ChatClient（懒加载）
-            ChatClient conversationClient = chatClientHolder.getChatClient(characterId);
-            if (conversationClient == null) {
-                return "Error: 无法获取角色ChatClient: " + characterId;
-            }
-
-            // 2. 查询会话配置
-            Session session = sessionRepository.findById(SessionId.of(sessionId))
-                    .orElseThrow(() -> new IllegalArgumentException("会话不存在: " + sessionId));
-
-            // 3. 获取当前用户身份
-            UserContextHolder.UserContext userContext = UserContextHolder.getContext();
-
-            // 4. 动态添加advisor并调用
-            String response = conversationClient
-                    .prompt()
-                    .advisors(advisorParams -> {
-                        // 设置sessionId参数
-                        advisorParams.param(ChatMemory.CONVERSATION_ID, sessionId);
-
-                        // 根据用户身份动态添加记忆advisor
-                        addMemoryAdvisor(advisorParams, userContext.isOwner());
-
-                        // 根据对话模式添加工具advisor（仅Agent模式）
-                        if (session.getConfiguration().getMode() == ConversationMode.AGENT) {
-                            addToolAdvisor(advisorParams, userContext.isOwner());
-                        }
-                    })
-                    .user(message)
-                    .call()
-                    .content();
-
-            log.debug("LLM调用成功: sessionId={}, characterId={}, userRole={}",
-                    sessionId, characterId, userContext.getRole());
-            return response;
-
-        } catch (Exception e) {
-            log.error("LLM调用失败: sessionId={}, characterId={}", sessionId, characterId, e);
-            return "Error: " + e.getMessage();
-        }
-    }
-
-    @Override
-    public Flux<String> sendMessageStream(String sessionId, String characterId, String message) {
-        try {
-            // 1. 获取指定角色的对话ChatClient（懒加载）
-            ChatClient conversationClient = chatClientHolder.getChatClient(characterId);
-            if (conversationClient == null) {
-                return Flux.error(new IllegalArgumentException("无法获取角色ChatClient: " + characterId));
-            }
-
-            // 2. 查询会话配置
-            Session session = sessionRepository.findById(SessionId.of(sessionId))
-                    .orElseThrow(() -> new IllegalArgumentException("会话不存在: " + sessionId));
+    private final SpringAiAdvisorAdapter advisorAdapter;
+    private final ToolConfigurationService toolConfigurationService;
 
 
-            // 3. 获取当前用户身份
-            UserContextHolder.UserContext userContext = UserContextHolder.getContext();
-
-            // 4. 动态添加advisor并调用
-            return conversationClient.prompt()
-                    .advisors(advisorParams -> {
-                        // 设置sessionId参数
-                        advisorParams.param(ChatMemory.CONVERSATION_ID, sessionId);
-
-                        // 根据用户身份动态添加记忆advisor
-                        addMemoryAdvisor(advisorParams, userContext.isOwner());
-
-                        // 根据对话模式添加工具advisor（仅Agent模式）
-                        if (session.getConfiguration().getMode() == ConversationMode.AGENT) {
-                            addToolAdvisor(advisorParams, userContext.isOwner());
-                        }
-                    })
-                    .user(message)
-                    .stream()
-                    .content()
-                    .doOnComplete(() -> log.debug("流式LLM调用完成: sessionId={}, characterId={}",
-                            sessionId, characterId))
-                    .doOnError(error -> log.error("流式LLM调用失败: sessionId={}, characterId={}",
-                            sessionId, characterId, error));
-
-        } catch (Exception e) {
-            log.error("流式LLM调用异常: sessionId={}, characterId={}", sessionId, characterId, e);
-            return Flux.error(e);
-        }
-    }
 
     /**
-     * 根据用户身份添加记忆advisor
-     * 这块advisorParams必须是新实例，否则会导致多次加入advisor
+     * 获取启用的工具回调列表
+     * 使用ToolConfigurationService进行动态工具筛选
+     * @param requestPlan 请求计划
+     * @return 启用的工具回调列表
      */
-    private void addMemoryAdvisor(ChatClient.AdvisorSpec advisorParams, boolean isOwner) {
+    private ToolCallback[] getEnabledToolCallbacks(RequestPlan requestPlan) {
         try {
-            Advisor memoryAdvisor;
-            if (isOwner) {
-                // 站长使用持久化记忆
-                memoryAdvisor = memoryAdvisorFactory.createMemoryAdvisor(SessionMemoryPolicy.forOwner());
-                log.debug("添加站长持久化记忆advisor");
-            } else {
-                // 游客使用内存记忆
-                memoryAdvisor = memoryAdvisorFactory.createMemoryAdvisor(SessionMemoryPolicy.forGuest());
-                log.debug("添加游客内存记忆advisor");
+            // 检查是否启用工具
+            if (!requestPlan.isEnableTools()) {
+                log.debug("工具未启用");
+                return new ToolCallback[0];
             }
-            if (memoryAdvisor != null) {
-                advisorParams.advisors(memoryAdvisor);
-            }
+
+            // 使用工具配置服务获取启用的工具回调
+            ToolCallback[] enabledCallbacks = toolConfigurationService.getEnabledToolCallbacks();
+            log.debug("启用工具，获取到{}个启用的工具回调", enabledCallbacks.length);
+
+            return enabledCallbacks;
+
         } catch (Exception e) {
-            log.error("添加记忆advisor失败", e);
+            log.error("获取启用工具回调失败", e);
+            return new ToolCallback[0];
         }
     }
 
-    /**
-     * 添加工具调用advisor（仅Agent模式且站长身份）
-     */
-    private void addToolAdvisor(ChatClient.AdvisorSpec advisorParams, boolean isOwner) {
-        if (isOwner) {
-            // TODO: 实现工具调用advisor
-            log.debug("Agent模式且站长身份，应添加工具调用advisor（待实现）");
-        }
-    }
 
 
 
@@ -222,5 +126,79 @@ public class CallLlmServiceImpl implements CallLlmService {
         }
 
         return taskSpecificPrompt + "\n\n" + userMessage;
+    }
+
+    @Override
+    public String call(String message, RequestPlan requestPlan) {
+        try {
+            // 1. 获取统一的对话ChatClient
+            ChatClient conversationClient = chatClientHolder.getConversationClient();
+            if (conversationClient == null) {
+                return "Error: 无法获取对话ChatClient";
+            }
+
+            //2. 获取运行时advisor组合
+            List<Advisor> runtimeAdvisors = advisorAdapter.buildRequestAdvisors(requestPlan);
+
+
+            String response = conversationClient
+                    .prompt()
+                    .advisors(advisorParams -> {
+                        // 设置sessionId参数
+                        advisorParams.param(ChatMemory.CONVERSATION_ID, requestPlan.getSessionId());
+
+                        // 添加运行时组装的advisor
+                        if (!runtimeAdvisors.isEmpty()) {
+                            advisorParams.advisors(runtimeAdvisors.toArray(new Advisor[0]));
+                        }
+                    })
+                    .toolCallbacks(getEnabledToolCallbacks(requestPlan))
+                    .user(message)
+                    .call()
+                    .content();
+
+                     return response;
+
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    @Override
+    public Flux<String> callStream(String message, RequestPlan requestPlan) {
+        try {
+            // 1. 获取统一的对话ChatClient
+            ChatClient conversationClient = chatClientHolder.getConversationClient();
+            if (conversationClient == null) {
+                return Flux.error(new IllegalArgumentException("无法获取对话ChatClient"));
+            }
+
+            // 2. 获取运行时advisor组合
+            List<Advisor> runtimeAdvisors = advisorAdapter.buildRequestAdvisors(requestPlan);
+
+            return conversationClient.prompt()
+                    .advisors(advisorParams -> {
+                        // 设置sessionId参数
+                        advisorParams.param(ChatMemory.CONVERSATION_ID, requestPlan.getSessionId());
+                        log.info("开始流式LLM调用: sessionId={}, characterId={}, advisor数量={}",
+                                requestPlan.getSessionId(), requestPlan.getCharacterId(), runtimeAdvisors.size());
+                        // 添加运行时组装的advisor
+                        if (!runtimeAdvisors.isEmpty()) {
+                            advisorParams.advisors(runtimeAdvisors.toArray(new Advisor[0]));
+                        }
+                    }).toolCallbacks(getEnabledToolCallbacks(requestPlan))
+                    .user(message)
+                    .stream()
+                    .content()
+                    .doOnComplete(() -> log.debug("流式LLM调用完成: sessionId={}, characterId={}, advisor数量={}",
+                            requestPlan.getSessionId(), requestPlan.getCharacterId(), runtimeAdvisors.size()))
+                    .doOnError(error -> log.error("流式LLM调用失败: sessionId={}, characterId={}",
+                            requestPlan.getSessionId(),requestPlan.getCharacterId(), error));
+
+        } catch (Exception e) {
+            log.error("流式LLM调用异常: sessionId={}, characterId={}", 
+                    requestPlan.getSessionId(), requestPlan.getCharacterId(), e);
+            return Flux.error(e);
+        }
     }
 }

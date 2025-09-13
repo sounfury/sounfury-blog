@@ -3,6 +3,7 @@ package org.sounfury.portal.repository;
 import org.jooq.*;
 import org.jooq.Record;
 
+import org.sounfury.blog.jooq.tables.pojos.Article;
 import org.sounfury.jooq.page.PageRepDto;
 import org.sounfury.jooq.page.PageReqDto;
 import org.sounfury.jooq.page.utils.JooqPageHelper;
@@ -14,6 +15,7 @@ import org.sounfury.portal.dto.req.TagPageReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.sounfury.core.constant.Constants.NOT_DEL_FLAG;
@@ -138,5 +140,26 @@ public class ArticlePortalRepository extends org.sounfury.blog.jooq.tables.daos.
 
         return ctx().resultQuery(sql, NOT_DEL_FLAG, 5)
                     .fetchInto(HistoryCount.class);
+    }
+
+    /**
+     * 根据标题模糊查询文章内容
+     */
+    public List<PageArticleRep> searchArticlesByTitle(String titleKeyword) {
+        List<Article> articles = ctx()
+                .select(PageArticleRep.ARTICLE_FIELDS)
+                .from(ARTICLE)
+                .where(ARTICLE.DEL_FLAG.eq(NOT_DEL_FLAG))
+                .and(ARTICLE.ENABLE_STATUS.eq(STATUS_ENABLE))
+                .and(ARTICLE.TITLE.contains(titleKeyword))
+                .limit(10)
+                .fetchInto(Article.class);
+
+        //批量转换为 PageArticleRep
+        List<PageArticleRep> pageArticleReps = new ArrayList<>();
+        for (Article article : articles) {
+            pageArticleReps.add(new PageArticleRep(article));
+        }
+        return pageArticleReps;
     }
 }

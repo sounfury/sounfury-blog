@@ -39,4 +39,10 @@ public class ChatRequest {
      * 是否为站长用户
      */
     private Boolean isOwner = false;
+    
+    /**
+     * 是否启用Agent模式（工具调用）
+     * 默认为false，需要非游客用户且显式启用才生效
+     */
+    private Boolean enableAgent = false;
 }

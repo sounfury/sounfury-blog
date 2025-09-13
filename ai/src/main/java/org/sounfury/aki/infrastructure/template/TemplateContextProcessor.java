@@ -79,7 +79,6 @@ public class TemplateContextProcessor {
 
     /**
      * 创建支持别名访问的包装对象
-     * 使用Map包装而不是动态代理，更适合Handlebars的反射机制
      */
     private Object createAliasProxy(Object target, Map<String, String> aliasMap) {
         try {

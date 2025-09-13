@@ -8,7 +8,7 @@ import lombok.Data;
  * 会话开始请求DTO
  */
 @Data
-public class   SessionStartRequest {
+public class SessionStartRequest {
     
     /**
      * 角色ID

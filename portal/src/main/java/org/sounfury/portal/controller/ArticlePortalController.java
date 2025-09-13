@@ -36,7 +36,7 @@ public class ArticlePortalController {
      * @param id
      * @return
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public Result<SingleArticleRep> getArticleById(@PathVariable Long id) {
         return Results.success(
                 articleService.getArticleById(id)
@@ -84,6 +84,14 @@ public class ArticlePortalController {
     public Result<PageRepDto<List<PageArticleRep>>>
     pageQueryArticleByTagId(TagPageReq pageReqDto) {
         return Results.success(articleService.pageQueryArticleByTagId(pageReqDto));
+    }
+
+    /**
+     * 根据标题模糊查询文章
+     */
+    @GetMapping("/search")
+    public Result<List<PageArticleRep>> searchArticlesByTitle(String titleKeyword) {
+        return Results.success(articleService.searchArticlesByTitle(titleKeyword));
     }
 
 }

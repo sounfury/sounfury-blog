@@ -1,9 +1,12 @@
 package org.sounfury.aki.domain.task.enums;
 
+import lombok.Getter;
+
 /**
  * 任务模式枚举
  * 定义具体的任务类型
  */
+@Getter
 public enum TaskMode {
     
     /**
@@ -33,15 +36,7 @@ public enum TaskMode {
         this.code = code;
         this.name = name;
     }
-    
-    public String getCode() {
-        return code;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
+
     /**
      * 根据代码获取任务模式
      */

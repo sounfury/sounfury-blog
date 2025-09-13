@@ -1,5 +1,7 @@
 package org.sounfury.aki.domain.conversation.session;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 /**
@@ -15,6 +17,13 @@ public class SessionMemoryPolicy {
         this.storageType = storageType;
     }
 
+    // === 新增注解 ===
+    @JsonCreator
+    public static SessionMemoryPolicy fromJson(
+            @JsonProperty("storageType") StorageType storageType
+    ) {
+        return new SessionMemoryPolicy(storageType);
+    }
     /**
      * 存储类型枚举
      */

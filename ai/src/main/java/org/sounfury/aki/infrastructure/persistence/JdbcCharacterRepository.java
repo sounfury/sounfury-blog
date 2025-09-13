@@ -3,11 +3,16 @@ package org.sounfury.aki.infrastructure.persistence;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.Configuration;
+import org.jooq.*;
+import org.jooq.Record;
+import org.jooq.impl.DSL;
+import org.sounfury.aki.application.prompt.persona.dto.PersonaPageRequest;
 import org.sounfury.aki.domain.prompt.persona.Persona;
 import org.sounfury.aki.domain.prompt.persona.PersonaCard;
 import org.sounfury.aki.domain.prompt.persona.PersonaId;
 import org.sounfury.aki.domain.prompt.repository.CharacterRepository;
+import org.sounfury.jooq.page.PageRepDto;
+import org.sounfury.jooq.page.utils.JooqPageHelper;
 import org.sounfury.aki.jooq.tables.daos.PersonaDao;
 import org.sounfury.aki.jooq.tables.daos.PersonaCardDao;
 import org.sounfury.aki.jooq.tables.pojos.PersonaPojo;
@@ -253,8 +258,8 @@ public class JdbcCharacterRepository extends PersonaDao implements CharacterRepo
         PersonaCard card = cardPojo != null ? toPersonaCard(cardPojo) : null;
 
         // 使用Persona.create方法创建，然后根据enabled状态调整
-        Persona persona = Persona.create(id, personaPojo.getName(), card, personaPojo.getDescription());
-
+        Persona persona = Persona.create(id, personaPojo.getName(), card, personaPojo.getDescription(), personaPojo.getCardCover());
+        log.info(persona.getCardCover());
         // 如果数据库中是禁用状态，则禁用角色
         if (personaPojo.getEnabled() == null || personaPojo.getEnabled() != 1) {
             persona = persona.disable();
@@ -285,6 +290,7 @@ public class JdbcCharacterRepository extends PersonaDao implements CharacterRepo
         pojo.setName(persona.getName());
         pojo.setDescription(persona.getDescription());
         pojo.setWorldBookId(persona.getWorldBookId());
+        pojo.setCardCover(persona.getCardCover());
         pojo.setEnabled(persona.isEnabled() ? (byte) 1 : (byte) 0);
         pojo.setCreateTime(persona.getCreatedAt() != null ? persona.getCreatedAt() : LocalDateTime.now());
         pojo.setUpdateTime(LocalDateTime.now());
@@ -311,4 +317,111 @@ public class JdbcCharacterRepository extends PersonaDao implements CharacterRepo
         pojo.setUpdateTime(LocalDateTime.now());
         return pojo;
     }
+
+    @Override
+    public PageRepDto<List<Persona>> findPersonaPage(PersonaPageRequest request) {
+        try {
+            log.debug("分页查询角色列表: page={}, size={}, keyword={}, enabled={}", 
+                    request.getPage(), request.getSize(), request.getKeyword(), request.getEnabled());
+            
+            // 构建基础查询（只选择persona表字段，用于映射到PersonaPojo）
+            SelectJoinStep<org.jooq.Record> query = ctx()
+                    .select(PERSONA.fields()) // 选择persona表的所有字段
+                    .from(PERSONA)
+                    .leftJoin(PERSONA_CARD).on(PERSONA.ID.eq(PERSONA_CARD.PERSONA_ID));
+            
+            // 添加条件
+            SelectConditionStep<Record> whereQuery = query.where(DSL.trueCondition());
+
+            // 关键字搜索
+            if (request.hasKeyword()) {
+                String keyword = "%" + request.getCleanKeyword() + "%";
+                whereQuery = whereQuery.and(
+                    PERSONA.NAME.like(keyword)
+                    .or(PERSONA.DESCRIPTION.like(keyword))
+                    .or(PERSONA_CARD.CHAR_NAME.like(keyword))
+                    .or(PERSONA_CARD.CHAR_PERSONA.like(keyword))
+                );
+            }
+            
+            // 状态筛选
+            if (request.hasEnabledFilter()) {
+                whereQuery = whereQuery.and(PERSONA.ENABLED.eq(request.getEnabled() ? (byte) 1 : (byte) 0));
+            }
+            // 执行分页查询，直接映射到PersonaPojo
+            PageRepDto<List<PersonaPojo>> pageResult = JooqPageHelper.getPage(
+                    whereQuery,
+                    request.toPageReqDto(),
+                    ctx(),
+                    PersonaPojo.class
+            );
+            log.info(pageResult.toString());
+            
+            // 转换为领域对象
+            List<Persona> personas = pageResult.getData().stream()
+                    .map(this::loadPersonaWithCard)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+            
+            return new PageRepDto<>(pageResult.getTotal(), personas);
+            
+        } catch (Exception e) {
+            log.error("分页查询角色列表失败: request={}", request, e);
+            return PageRepDto.empty();
+        }
+    }
+
+    @Override
+    public Optional<Persona> findPersonaDetailById(PersonaId id) {
+        if (id == null) {
+            return Optional.empty();
+        }
+        
+        try {
+            log.debug("查询角色详细信息: id={}", id.getValue());
+            
+            // 这里重用现有的findPersonaById方法，因为它已经包含了JOIN查询
+            return findPersonaById(id);
+            
+        } catch (Exception e) {
+            log.error("查询角色详细信息失败: id={}", id.getValue(), e);
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * 将JOOQ Record转换为Persona领域对象
+     */
+    private Optional<Persona> recordToPersona(org.jooq.Record record) {
+        try {
+            // 提取persona信息
+            PersonaPojo personaPojo = new PersonaPojo();
+            personaPojo.setId(record.get("persona_id", String.class));
+            personaPojo.setName(record.get(PERSONA.NAME));
+            personaPojo.setDescription(record.get(PERSONA.DESCRIPTION));
+            personaPojo.setWorldBookId(record.get(PERSONA.WORLD_BOOK_ID));
+            personaPojo.setEnabled(record.get(PERSONA.ENABLED));
+            personaPojo.setCreateTime(record.get(PERSONA.CREATE_TIME));
+            personaPojo.setUpdateTime(record.get(PERSONA.UPDATE_TIME));
+            
+            // 提取角色卡信息
+            PersonaCardPojo cardPojo = null;
+            String cardPersonaId = record.get("card_persona_id", String.class);
+            if (cardPersonaId != null) {
+                cardPojo = new PersonaCardPojo();
+                cardPojo.setCharName(record.get(PERSONA_CARD.CHAR_NAME));
+                cardPojo.setCharPersona(record.get(PERSONA_CARD.CHAR_PERSONA));
+                cardPojo.setWorldScenario(record.get(PERSONA_CARD.WORLD_SCENARIO));
+                cardPojo.setCharGreeting(record.get(PERSONA_CARD.CHAR_GREETING));
+                cardPojo.setExampleDialogue(record.get(PERSONA_CARD.EXAMPLE_DIALOGUE));
+            }
+            
+            return Optional.of(toDomain(personaPojo, cardPojo));
+        } catch (Exception e) {
+            log.error("转换Record为Persona失败", e);
+            return Optional.empty();
+        }
+    }
+
 }

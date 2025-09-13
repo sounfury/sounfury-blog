@@ -2,10 +2,9 @@ package org.sounfury.redis.serialize;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.*;
+import org.jooq.JSON;
 import org.jooq.types.*;
 
 import java.io.IOException;
@@ -93,6 +92,36 @@ public class JooqUTypeSerializers {
                 return UByte.valueOf(p.getByteValue());
             }
             return null;
+        }
+    }
+
+    // 序列化器：把 jOOQ JSON 当成原始 JSON 输出
+    public static class JSONSerializer extends JsonSerializer<JSON> {
+        @Override
+        public void serialize(JSON value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            if (value == null) {
+                gen.writeNull();
+                return;
+            }
+            String json = value.data();
+            // 注意：这里直接写 raw JSON，不加引号
+            gen.writeRawValue(json);
+        }
+    }
+
+    // 反序列化器：从 JSON 反序列化成 jOOQ JSON
+    public static class JSONDeserializer extends JsonDeserializer<JSON> {
+        @Override
+        public JSON deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            JsonToken token = p.getCurrentToken();
+
+            if (token == JsonToken.VALUE_NULL) {
+                return null;
+            }
+
+            // 把子树读成字符串，然后交给 jOOQ JSON 封装
+            JsonNode node = p.readValueAsTree();
+            return JSON.json(node.toString());
         }
     }
 }

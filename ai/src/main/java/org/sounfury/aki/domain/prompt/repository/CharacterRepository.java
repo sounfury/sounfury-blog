@@ -1,7 +1,9 @@
 package org.sounfury.aki.domain.prompt.repository;
 
+import org.sounfury.aki.application.prompt.persona.dto.PersonaPageRequest;
 import org.sounfury.aki.domain.prompt.persona.Persona;
 import org.sounfury.aki.domain.prompt.persona.PersonaId;
+import org.sounfury.jooq.page.PageRepDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,4 +66,18 @@ public interface CharacterRepository {
      * @return 如果存在返回true，否则返回false
      */
     boolean existsByName(String name);
+    
+    /**
+     * 分页查询角色列表
+     * @param request 分页查询请求
+     * @return 分页查询结果
+     */
+    PageRepDto<List<Persona>> findPersonaPage(PersonaPageRequest request);
+    
+    /**
+     * 根据ID查找角色详细信息（包含完整的角色卡信息）
+     * @param id 角色ID
+     * @return 角色详细信息，如果不存在则返回空
+     */
+    Optional<Persona> findPersonaDetailById(PersonaId id);
 }

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 自定义权限加载接口实现类
+ * 自定义权限加载接口实现类，基于rbac的用户-角色-权限模型设计
  */
 @Component    // 保证此类被 SpringBoot 扫描，完成 Sa-Token 的自定义权限验证扩展
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class StpInterfaceImpl implements StpInterface {
 
     @Value("${sa-token.timeout}")
     private Long timeout;
+
 
     /**
      * 返回一个账号所拥有的权限码集合

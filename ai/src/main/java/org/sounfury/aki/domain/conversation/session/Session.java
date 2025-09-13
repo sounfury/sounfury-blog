@@ -55,6 +55,7 @@ public class Session {
         if (!configuration.isValid()) {
             throw new IllegalArgumentException("会话配置无效");
         }
+        this.personaId = configuration.getPersonaId();
         this.sessionId = sessionId;
         this.configuration = configuration;
         this.createdAt = LocalDateTime.now();

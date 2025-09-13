@@ -1,7 +1,9 @@
 package org.sounfury.aki.domain.llm.repository;
 
 import org.sounfury.aki.domain.llm.ModelConfiguration;
+import org.sounfury.aki.application.llm.llmconfig.dto.LlmConfigurationListRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,7 +24,7 @@ public interface LlmConfigurationRepository {
      * @param id 配置ID
      * @return 配置信息，如果不存在则返回空
      */
-    Optional<ModelConfiguration> findById(Integer id);
+    Optional<ModelConfiguration> findConfigById(Integer id);
 
     /**
      * 获取当前全局配置（enabled=1的配置）
@@ -42,4 +44,11 @@ public interface LlmConfigurationRepository {
      * @return true表示存在，false表示不存在
      */
     boolean existsById(Integer id);
+    
+    /**
+     * 分页查询配置列表
+     * @param request 查询请求参数
+     * @return 分页结果
+     */
+    org.sounfury.jooq.page.PageRepDto<List<ModelConfiguration>> findConfigurationPage(LlmConfigurationListRequest request);
 }

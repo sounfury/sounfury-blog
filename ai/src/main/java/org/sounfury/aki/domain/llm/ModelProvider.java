@@ -44,6 +44,7 @@ public class ModelProvider {
         CLAUDE("Claude", "Anthropic Claude模型"),
         GEMINI("Gemini", "Google Gemini模型"),
         QWEN("Qwen", "阿里通义千问模型"),
+        CHATGLM("ChatGLM", "ChatGLM系列模型"),
         CUSTOM("Custom", "自定义模型");
         
         private final String displayName;
@@ -97,6 +98,7 @@ public class ModelProvider {
             case DEEPSEEK -> "https://api.siliconflow.cn/v1";
             case QWEN -> "https://dashscope.aliyuncs.com/api/v1";
             case GEMINI -> "https://generativelanguage.googleapis.com/v1";
+            case CHATGLM -> "https://open.bigmodel.cn/api/paas/v4/";
             case CUSTOM -> null; // 自定义类型必须提供baseUrl
         };
     }

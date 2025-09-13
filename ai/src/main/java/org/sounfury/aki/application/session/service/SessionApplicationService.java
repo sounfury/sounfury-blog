@@ -33,10 +33,11 @@ public class SessionApplicationService {
     public SessionListResponse getSessionsByCharacterId(String characterId, boolean isOwnerSession) {
         try {
             log.debug("查询角色Session列表: characterId={}, isOwnerSession={}", characterId, isOwnerSession);
-            
+
+
             // 查询Session列表
             List<Session> sessions = sessionRepository.findByCharacterIdAndOwnerType(characterId, isOwnerSession);
-            
+            log.info(sessions.toString());
             // 获取角色信息
             Optional<Persona> persona = characterRepository.findPersonaById(PersonaId.of(characterId));
             String characterName = persona.map(Persona::getName).orElse("未知角色");
@@ -77,7 +78,7 @@ public class SessionApplicationService {
             // 转换为DTO
             List<SessionListResponse.SessionItem> sessionItems = filteredSessions.stream()
                     .map(session -> {
-                        String characterName = getCharacterName(session.getConfiguration().getCharacterId());
+                        String characterName = getCharacterName(session.getConfiguration().getPersonaId());
                         return convertToSessionItem(session, characterName);
                     })
                     .collect(Collectors.toList());
@@ -145,11 +146,38 @@ public class SessionApplicationService {
     }
 
     /**
-     * 根据sessionId加载会话详情（基础信息+最新10条记忆）
+     * 删除Session及其相关记忆
+     * 游客会话：仅删除Redis中的会话数据
+     * 站长会话：删除Redis + 数据库会话 + 级联删除相关记忆
      */
-    public SessionDetailResponse getSessionDetail(String sessionId) {
+    public void deleteSession(String sessionId) {
         try {
-            log.debug("加载会话详情: sessionId={}", sessionId);
+            log.info("删除Session: sessionId={}", sessionId);
+            
+            // 检查Session是否存在
+            if (!sessionRepository.exists(SessionId.of(sessionId))) {
+                throw new IllegalArgumentException("Session不存在: " + sessionId);
+            }
+            
+            // 调用Repository的deleteWithMemories方法
+            sessionRepository.deleteWithMemories(SessionId.of(sessionId));
+            
+            log.info("Session删除成功: sessionId={}", sessionId);
+            
+        } catch (Exception e) {
+            log.error("删除Session失败: sessionId={}", sessionId, e);
+            throw new RuntimeException("删除Session失败", e);
+        }
+    }
+
+    /**
+     * 根据sessionId加载会话详情（基础信息+最新10条记忆）
+     * @param sessionId 会话ID
+     * @param cursor 游标时间戳，用于分页加载，null表示加载最新记录
+     */
+    public SessionDetailResponse getSessionDetail(String sessionId, LocalDateTime cursor) {
+        try {
+            log.info("加载会话详情: sessionId={}, cursor={}", sessionId, cursor);
             
             // 查询Session基础信息
             Optional<Session> sessionOpt = sessionRepository.findById(SessionId.of(sessionId));
@@ -159,9 +187,9 @@ public class SessionApplicationService {
             
             Session session = sessionOpt.get();
             
-            // 查询最新10条记忆
+            // 查询10条记忆（使用cursor进行分页）
             List<SessionMemory> memories = sessionRepository.findSessionMemories(
-                    SessionId.of(sessionId), null, 10);
+                    SessionId.of(sessionId), cursor, 10);
             
             // 检查是否还有更多记忆
             boolean hasMore = memories.size() == 10;
@@ -174,7 +202,7 @@ public class SessionApplicationService {
             }
             
             // 转换为DTO
-            String characterName = getCharacterName(session.getConfiguration().getCharacterId());
+            String characterName = getCharacterName(session.getConfiguration().getPersonaId());
             
             SessionDetailResponse.SessionInfo sessionInfo = convertToSessionInfo(session, characterName);
             List<SessionDetailResponse.MemoryItem> memoryItems = memories.stream()
@@ -221,7 +249,7 @@ public class SessionApplicationService {
     private SessionListResponse.SessionItem convertToSessionItem(Session session, String characterName) {
         return SessionListResponse.SessionItem.builder()
                 .sessionId(session.getSessionId().getValue())
-                .characterId(session.getConfiguration().getCharacterId())
+                .characterId(session.getConfiguration().getPersonaId())
                 .characterName(characterName)
                 .mode(session.getConfiguration().getMode().getName())
                 .isOwnerSession(session.getConfiguration().isOwnerSession())
@@ -236,7 +264,7 @@ public class SessionApplicationService {
     private SessionDetailResponse.SessionInfo convertToSessionInfo(Session session, String characterName) {
         return SessionDetailResponse.SessionInfo.builder()
                 .sessionId(session.getSessionId().getValue())
-                .characterId(session.getConfiguration().getCharacterId())
+                .characterId(session.getConfiguration().getPersonaId())
                 .characterName(characterName)
                 .mode(session.getConfiguration().getMode().getName())
                 .isOwnerSession(session.getConfiguration().isOwnerSession())

@@ -2,6 +2,7 @@ package org.sounfury.aki.domain.conversation.session;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * 会话配置值对象
@@ -14,7 +15,7 @@ public class SessionMeta {
     /**
      * 角色ID
      */
-    private final String characterId;
+    private final String personaId;
     
     /**
      * 对话模式
@@ -81,14 +82,16 @@ public class SessionMeta {
      * 检查是否需要RAG
      */
     public boolean needsRag() {
-        return enableRag && characterId != null && !characterId.trim().isEmpty();
+        return enableRag && personaId != null && !personaId
+                .trim().isEmpty();
     }
     
     /**
      * 验证配置是否有效
      */
     public boolean isValid() {
-        return characterId != null && !characterId.trim().isEmpty()
+        return personaId != null && !personaId
+                .trim().isEmpty()
                && mode != null;
     }
 }

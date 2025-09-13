@@ -1,21 +1,35 @@
 package org.sounfury.aki.infrastructure.persistence;
 
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Configuration;
-import org.jooq.DSLContext;
+import org.jooq.Condition;
 import org.jooq.JSON;
+import org.jooq.Record;
+import org.jooq.SelectConditionStep;
+import org.jooq.SelectJoinStep;
+import org.jooq.impl.DSL;
+import org.sounfury.aki.application.llm.llmconfig.dto.LlmConfigurationListRequest;
+import org.sounfury.aki.jooq.tables.daos.ModelConfigurationDao;
+import org.sounfury.aki.jooq.tables.pojos.ModelConfigurationPojo;
+import org.sounfury.jooq.page.PageRepDto;
+import org.sounfury.jooq.page.utils.JooqPageHelper;
 import org.springframework.stereotype.Repository;
 import org.sounfury.aki.domain.llm.ModelConfiguration;
 import org.sounfury.aki.domain.llm.ModelProvider;
 import org.sounfury.aki.domain.llm.ModelSettings;
 import org.sounfury.aki.domain.llm.repository.LlmConfigurationRepository;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
+import org.sounfury.core.utils.JsonUtils;
 
-import static org.jooq.impl.DSL.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.sounfury.aki.jooq.tables.ModelConfiguration.MODEL_CONFIGURATION;
 
 /**
  * JOOQ实现的LLM配置仓储
@@ -23,15 +37,15 @@ import static org.jooq.impl.DSL.*;
  */
 @Slf4j
 @Repository
-@RequiredArgsConstructor
-public class JdbcLlmConfigurationRepository implements LlmConfigurationRepository {
-    
-    private final Configuration configuration;
-    
-    private DSLContext ctx() {
-        return configuration.dsl();
+public class JdbcLlmConfigurationRepository extends ModelConfigurationDao implements LlmConfigurationRepository {
+
+    public JdbcLlmConfigurationRepository(Configuration configuration, ObjectMapper objectMapper) {
+        super(configuration);
+        this.mapper = objectMapper;
     }
-    
+
+    private final ObjectMapper mapper ;
+
     @Override
     public ModelConfiguration save(ModelConfiguration config) {
         if (config == null) {
@@ -39,32 +53,41 @@ public class JdbcLlmConfigurationRepository implements LlmConfigurationRepositor
         }
         
         try {
-            // 如果是新配置（id为null），执行插入
-            if (config.getId() == null) {
-                return insertConfiguration(config);
+            ModelConfigurationPojo pojo = fromDomain(config);
+            boolean isNewConfig = config.getId() == null || !existsById(config.getId());
+            
+            if (isNewConfig) {
+                // 如果启用新配置，先禁用其他配置
+                if (config.isEnabled()) {
+                    disableAllConfigurations();
+                }
+                insert(pojo);
+                log.debug("插入LLM配置: id={}", config.getId());
             } else {
-                return updateConfiguration(config);
+                // 如果启用此配置，先禁用其他配置
+                if (config.isEnabled()) {
+                    disableOtherConfigurations(config.getId());
+                }
+                update(pojo);
+                log.debug("更新LLM配置: id={}", config.getId());
             }
+            
+            return config;
         } catch (Exception e) {
-            log.error("保存LLM配置失败: {}", config, e);
+            log.error("保存LLM配置失败: id={}", config.getId(), e);
             throw new RuntimeException("保存LLM配置失败", e);
         }
     }
     
     @Override
-    public Optional<ModelConfiguration> findById(Integer id) {
+    public Optional<ModelConfiguration> findConfigById(Integer id) {
         if (id == null) {
             return Optional.empty();
         }
         
         try {
-            var record = ctx()
-                    .select()
-                    .from(table("model_configuration"))
-                    .where(field("id").eq(id))
-                    .fetchOne();
-                    
-            return Optional.ofNullable(record).map(this::toDomain);
+            ModelConfigurationPojo pojo = fetchOneById(id);
+            return Optional.ofNullable(pojo).map(this::toDomain);
         } catch (Exception e) {
             log.error("根据ID查找LLM配置失败: id={}", id, e);
             return Optional.empty();
@@ -74,13 +97,12 @@ public class JdbcLlmConfigurationRepository implements LlmConfigurationRepositor
     @Override
     public Optional<ModelConfiguration> findGlobalConfiguration() {
         try {
-            var record = ctx()
-                    .select()
-                    .from(table("model_configuration"))
-                    .where(field("enabled").eq(1))
-                    .fetchOne();
+            ModelConfigurationPojo pojo = ctx()
+                    .selectFrom(MODEL_CONFIGURATION)
+                    .where(MODEL_CONFIGURATION.ENABLED.eq((byte) 1))
+                    .fetchOneInto(ModelConfigurationPojo.class);
                     
-            return Optional.ofNullable(record).map(this::toDomain);
+            return Optional.ofNullable(pojo).map(this::toDomain);
         } catch (Exception e) {
             log.error("查找全局LLM配置失败", e);
             return Optional.empty();
@@ -94,12 +116,8 @@ public class JdbcLlmConfigurationRepository implements LlmConfigurationRepositor
         }
         
         try {
-            int deleted = ctx()
-                    .deleteFrom(table("model_configuration"))
-                    .where(field("id").eq(id))
-                    .execute();
-                    
-            log.debug("删除LLM配置: id={}, deleted={}", id, deleted > 0);
+            super.deleteById(id);
+            log.debug("删除LLM配置: id={}", id);
         } catch (Exception e) {
             log.error("删除LLM配置失败: id={}", id, e);
             throw new RuntimeException("删除LLM配置失败", e);
@@ -115,9 +133,9 @@ public class JdbcLlmConfigurationRepository implements LlmConfigurationRepositor
         try {
             return ctx()
                     .fetchExists(
-                            selectOne()
-                                    .from(table("model_configuration"))
-                                    .where(field("id").eq(id))
+                            ctx().selectOne()
+                                    .from(MODEL_CONFIGURATION)
+                                    .where(MODEL_CONFIGURATION.ID.eq(id))
                     );
         } catch (Exception e) {
             log.error("检查LLM配置存在性失败: id={}", id, e);
@@ -125,176 +143,199 @@ public class JdbcLlmConfigurationRepository implements LlmConfigurationRepositor
         }
     }
     
-    /**
-     * 插入新配置
-     */
-    private ModelConfiguration insertConfiguration(ModelConfiguration config) {
-        // 如果启用新配置，先禁用其他配置
-        if (config.isEnabled()) {
-            disableAllConfigurations();
+    @Override
+    public PageRepDto<List<ModelConfiguration>> findConfigurationPage(LlmConfigurationListRequest request) {
+        if (request == null) {
+            return PageRepDto.empty();
         }
         
-        var insertResult = ctx()
-                .insertInto(table("model_configuration"))
-                .columns(
-                        field("provider_type"),
-                        field("base_url"),
-                        field("api_key"),
-                        field("model_name"),
-                        field("max_tokens"),
-                        field("temperature"),
-                        field("top_p"),
-                        field("frequency_penalty"),
-                        field("presence_penalty"),
-                        field("stop_sequences"),
-                        field("stream_enabled"),
-                        field("timeout_seconds"),
-                        field("retry_count"),
-                        field("enabled"),
-                        field("description"),
-                        field("create_time"),
-                        field("update_time")
-                )
-                .values(
-                        config.getProvider().getType().name(),
-                        config.getProvider().getBaseUrl(),
-                        config.getProvider().getApiKey(),
-                        config.getProvider().getModelName(),
-                        config.getSettings().getMaxTokens(),
-                        config.getSettings().getTemperature(),
-                        config.getSettings().getTopP(),
-                        config.getSettings().getFrequencyPenalty(),
-                        config.getSettings().getPresencePenalty(),
-                        config.getSettings().getStopSequences() != null ? 
-                            JSON.valueOf(Arrays.toString(config.getSettings().getStopSequences())) : null,
-                        config.getSettings().isStreamEnabled() ? 1 : 0,
-                        config.getSettings().getTimeoutSeconds(),
-                        config.getSettings().getRetryCount(),
-                        config.isEnabled() ? 1 : 0,
-                        config.getDescription(),
-                        config.getCreatedAt(),
-                        config.getUpdatedAt()
-                )
-                .returningResult(field("id"))
-                .fetchOne();
-                
-        Integer generatedId = insertResult.getValue(field("id", Integer.class));
-        
-        return ModelConfiguration.builder()
-                .id(generatedId)
-                .provider(config.getProvider())
-                .settings(config.getSettings())
-                .createdAt(config.getCreatedAt())
-                .updatedAt(config.getUpdatedAt())
-                .enabled(config.isEnabled())
-                .description(config.getDescription())
-                .build();
-    }
-    
-    /**
-     * 更新配置
-     */
-    private ModelConfiguration updateConfiguration(ModelConfiguration config) {
-        // 如果启用此配置，先禁用其他配置
-        if (config.isEnabled()) {
-            disableOtherConfigurations(config.getId());
+        try {
+            log.debug("分页查询LLM配置列表: page={}, size={}", request.getPage(), request.getSize());
+            
+            // 构建基础查询
+            SelectJoinStep<Record> query = ctx()
+                    .select(MODEL_CONFIGURATION.fields())
+                    .from(MODEL_CONFIGURATION);
+            
+            // 添加查询条件
+            SelectConditionStep<Record> whereQuery = query.where(DSL.trueCondition());
+            
+            // 提供商类型过滤
+            if (request.hasProviderTypeFilter()) {
+                whereQuery = whereQuery.and(MODEL_CONFIGURATION.PROVIDER_TYPE.eq(request.getCleanProviderType()));
+            }
+            
+            // 启用状态过滤
+            if (request.hasEnabledFilter()) {
+                byte enabledValue = request.getEnabled() ? (byte) 1 : (byte) 0;
+                whereQuery = whereQuery.and(MODEL_CONFIGURATION.ENABLED.eq(enabledValue));
+            }
+            
+            // 模型名称关键字搜索
+            if (request.hasModelNameSearch()) {
+                String keyword = "%" + request.getCleanModelName() + "%";
+                whereQuery = whereQuery.and(MODEL_CONFIGURATION.MODEL_NAME.like(keyword));
+            }
+            
+            // 描述关键字搜索
+            if (request.hasDescriptionSearch()) {
+                String keyword = "%" + request.getCleanDescription() + "%";
+                whereQuery = whereQuery.and(MODEL_CONFIGURATION.DESCRIPTION.like(keyword));
+            }
+            
+            // 执行分页查询
+            PageRepDto<List<ModelConfigurationPojo>> pageResult = JooqPageHelper.getPage(
+                    whereQuery,
+                    request.toPageReqDto(),
+                    ctx(),
+                    ModelConfigurationPojo.class
+            );
+            
+            log.debug("分页查询LLM配置POJO成功: 返回{}条记录", pageResult.getData().size());
+            
+            // 转换为领域对象
+            List<ModelConfiguration> configurations = pageResult.getData().stream()
+                    .map(this::toDomain)
+                    .filter(config -> config != null)
+                    .collect(Collectors.toList());
+            
+            log.debug("分页查询LLM配置成功: 返回{}条记录，总计{}条", configurations.size(), pageResult.getTotal());
+            return new PageRepDto<>(pageResult.getTotal(), configurations);
+            
+        } catch (Exception e) {
+            log.error("分页查询LLM配置失败", e);
+            return PageRepDto.empty();
         }
-        
-        ctx()
-                .update(table("model_configuration"))
-                .set(field("provider_type"), config.getProvider().getType().name())
-                .set(field("base_url"), config.getProvider().getBaseUrl())
-                .set(field("api_key"), config.getProvider().getApiKey())
-                .set(field("model_name"), config.getProvider().getModelName())
-                .set(field("max_tokens"), config.getSettings().getMaxTokens())
-                .set(field("temperature"), config.getSettings().getTemperature())
-                .set(field("top_p"), config.getSettings().getTopP())
-                .set(field("frequency_penalty"), config.getSettings().getFrequencyPenalty())
-                .set(field("presence_penalty"), config.getSettings().getPresencePenalty())
-                .set(field("stop_sequences"), config.getSettings().getStopSequences() != null ? 
-                    JSON.valueOf(Arrays.toString(config.getSettings().getStopSequences())) : null)
-                .set(field("stream_enabled"), config.getSettings().isStreamEnabled() ? 1 : 0)
-                .set(field("timeout_seconds"), config.getSettings().getTimeoutSeconds())
-                .set(field("retry_count"), config.getSettings().getRetryCount())
-                .set(field("enabled"), config.isEnabled() ? 1 : 0)
-                .set(field("description"), config.getDescription())
-                .set(field("update_time"), LocalDateTime.now())
-                .where(field("id").eq(config.getId()))
-                .execute();
-                
-        return config;
     }
     
     /**
      * 禁用所有配置
      */
     private void disableAllConfigurations() {
-        ctx()
-                .update(table("model_configuration"))
-                .set(field("enabled"), 0)
-                .execute();
+        try {
+            ctx()
+                    .update(MODEL_CONFIGURATION)
+                    .set(MODEL_CONFIGURATION.ENABLED, (byte) 0)
+                    .execute();
+        } catch (Exception e) {
+            log.error("禁用所有LLM配置失败", e);
+        }
     }
     
     /**
      * 禁用除指定ID外的其他配置
      */
     private void disableOtherConfigurations(Integer excludeId) {
-        ctx()
-                .update(table("model_configuration"))
-                .set(field("enabled"), 0)
-                .where(field("id").ne(excludeId))
-                .execute();
+        try {
+            ctx()
+                    .update(MODEL_CONFIGURATION)
+                    .set(MODEL_CONFIGURATION.ENABLED, (byte) 0)
+                    .where(MODEL_CONFIGURATION.ID.ne(excludeId))
+                    .execute();
+        } catch (Exception e) {
+            log.error("禁用其他LLM配置失败: excludeId={}", excludeId, e);
+        }
     }
     
+
+    
     /**
-     * 将数据库记录转换为域对象
+     * 将数据库POJO转换为领域对象
      */
-    private ModelConfiguration toDomain(org.jooq.Record record) {
+    private ModelConfiguration toDomain(ModelConfigurationPojo pojo) {
+        if (pojo == null) {
+            return null;
+        }
+        
         try {
             // 构建ModelProvider值对象
             ModelProvider provider = ModelProvider.builder()
-                    .type(ModelProvider.ProviderType.valueOf(record.getValue("provider_type", String.class)))
-                    .baseUrl(record.getValue("base_url", String.class))
-                    .apiKey(record.getValue("api_key", String.class))
-                    .modelName(record.getValue("model_name", String.class))
+                    .type(ModelProvider.ProviderType.valueOf(pojo.getProviderType().toUpperCase()))
+                    .baseUrl(pojo.getBaseUrl())
+                    .apiKey(pojo.getApiKey())
+                    .modelName(pojo.getModelName())
                     .build();
             
-            // 处理stopSequences
+            // 处理stopSequences JSON
             String[] stopSequences = null;
-            String stopSeqJson = record.getValue("stop_sequences", String.class);
-            if (stopSeqJson != null && !stopSeqJson.trim().isEmpty()) {
-                // 简单解析JSON数组字符串，实际项目中应使用JSON库
-                stopSequences = stopSeqJson.replace("[", "").replace("]", "")
-                        .split(",");
+            if (pojo.getStopSequences() != null && !pojo.getStopSequences().data().trim().isEmpty()) {
+                try {
+                    stopSequences = JsonUtils.parseObject(pojo.getStopSequences().data(), String[].class);
+                } catch (Exception e) {
+                    log.warn("解析stopSequences失败，使用null: {}", pojo.getStopSequences(), e);
+                }
             }
             
             // 构建ModelSettings值对象
             ModelSettings settings = ModelSettings.builder()
-                    .maxTokens(record.getValue("max_tokens", Integer.class))
-                    .temperature(record.getValue("temperature", Double.class))
-                    .topP(record.getValue("top_p", Double.class))
-                    .frequencyPenalty(record.getValue("frequency_penalty", Double.class))
-                    .presencePenalty(record.getValue("presence_penalty", Double.class))
+                    .maxTokens(pojo.getMaxTokens())
+                    .temperature(pojo.getTemperature().doubleValue())
+                    .topP(pojo.getTopP().doubleValue())
+                    .frequencyPenalty(pojo.getFrequencyPenalty().doubleValue())
+                    .presencePenalty(pojo.getPresencePenalty().doubleValue())
                     .stopSequences(stopSequences)
-                    .streamEnabled(record.getValue("stream_enabled", Integer.class) == 1)
-                    .timeoutSeconds(record.getValue("timeout_seconds", Integer.class))
-                    .retryCount(record.getValue("retry_count", Integer.class))
+                    .streamEnabled(pojo.getStreamEnabled() != null && pojo.getStreamEnabled() == 1)
+                    .timeoutSeconds(pojo.getTimeoutSeconds())
+                    .retryCount(pojo.getRetryCount())
                     .build();
             
             // 构建ModelConfiguration聚合根
             return ModelConfiguration.builder()
-                    .id(record.getValue("id", Integer.class))
+                    .id(pojo.getId())
                     .provider(provider)
                     .settings(settings)
-                    .createdAt(record.getValue("create_time", LocalDateTime.class))
-                    .updatedAt(record.getValue("update_time", LocalDateTime.class))
-                    .enabled(record.getValue("enabled", Integer.class) == 1)
-                    .description(record.getValue("description", String.class))
+                    .createdAt(pojo.getCreateTime())
+                    .updatedAt(pojo.getUpdateTime())
+                    .enabled(pojo.getEnabled() != null && pojo.getEnabled() == 1)
+                    .description(pojo.getDescription())
                     .build();
                     
         } catch (Exception e) {
-            log.error("转换数据库记录为域对象失败: {}", record, e);
-            throw new RuntimeException("数据转换失败", e);
+            log.error("转换ModelConfigurationPojo为领域对象失败: id={}", pojo.getId(), e);
+            return null;
         }
+    }
+    
+    /**
+     * 将领域对象转换为数据库POJO
+     */
+    private ModelConfigurationPojo fromDomain(ModelConfiguration config) {
+        if (config == null) {
+            return null;
+        }
+        
+        ModelConfigurationPojo pojo = new ModelConfigurationPojo();
+        pojo.setId(config.getId());
+        pojo.setProviderType(config.getProvider().getType().name());
+        pojo.setBaseUrl(config.getProvider().getBaseUrl());
+        pojo.setApiKey(config.getProvider().getApiKey());
+        pojo.setModelName(config.getProvider().getModelName());
+        pojo.setMaxTokens(config.getSettings().getMaxTokens());
+        pojo.setTemperature(BigDecimal.valueOf(config.getSettings().getTemperature()));
+        pojo.setTopP(BigDecimal.valueOf(config.getSettings().getTopP()));
+        pojo.setFrequencyPenalty(BigDecimal.valueOf(config.getSettings().getFrequencyPenalty()));
+        pojo.setPresencePenalty(BigDecimal.valueOf(config.getSettings().getPresencePenalty()));
+        
+        // 序列化stopSequences为JSON
+        if (config.getSettings().getStopSequences() != null) {
+            try {
+                String[] stopSequences = config.getSettings().getStopSequences();
+                String jsonArray = mapper.writeValueAsString(stopSequences);
+                pojo.setStopSequences(JSON.json(jsonArray));
+            } catch (Exception e) {
+                log.warn("序列化stopSequences失败，使用null", e);
+                pojo.setStopSequences(null);
+            }
+        }
+        
+        pojo.setStreamEnabled(config.getSettings().isStreamEnabled() ? (byte) 1 : (byte) 0);
+        pojo.setTimeoutSeconds(config.getSettings().getTimeoutSeconds());
+        pojo.setRetryCount(config.getSettings().getRetryCount());
+        pojo.setEnabled(config.isEnabled() ? (byte) 1 : (byte) 0);
+        pojo.setDescription(config.getDescription());
+        pojo.setCreateTime(config.getCreatedAt());
+        pojo.setUpdateTime(config.getUpdatedAt() != null ? config.getUpdatedAt() : LocalDateTime.now());
+        
+        return pojo;
     }
 }

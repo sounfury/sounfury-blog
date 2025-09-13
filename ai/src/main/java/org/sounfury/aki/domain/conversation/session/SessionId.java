@@ -1,5 +1,6 @@
 package org.sounfury.aki.domain.conversation.session;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -33,14 +34,14 @@ public class SessionId {
      * 生成新的会话ID
      */
     public static SessionId generate() {
-        return new SessionId(UUID.randomUUID().toString());
+        return new SessionId(UuidCreator.getTimeOrdered().toString());
     }
 
     /**
      * 生成游客会话ID（带前缀）
      */
     public static SessionId generateForGuest() {
-        return new SessionId("guest_" + UUID.randomUUID());
+        return new SessionId("guest_" + UuidCreator.getTimeOrdered().toString());
     }
 
     /**

@@ -3,6 +3,7 @@ package org.sounfury.aki.application.conversation.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.application.conversation.dto.*;
+import org.sounfury.aki.contracts.plan.RequestPlan;
 import org.sounfury.aki.domain.prompt.persona.PersonaId;
 import org.sounfury.aki.domain.prompt.repository.CharacterRepository;
 import org.sounfury.aki.domain.conversation.session.ConversationMode;
@@ -10,6 +11,7 @@ import org.sounfury.aki.domain.llm.service.CallLlmService;
 import org.sounfury.aki.domain.conversation.session.*;
 import org.sounfury.aki.domain.conversation.session.repository.SessionRepository;
 
+import org.sounfury.aki.infrastructure.shared.context.UserContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -25,6 +27,7 @@ public class ConversationApplicationService {
     private final CharacterRepository characterRepository;
     private final CallLlmService callLlmService;
     private final SessionRepository sessionRepository;
+    private final RequestPlanCreatService requestPlanCreatService;
 
     /**
      * 开始新的对话会话
@@ -52,12 +55,14 @@ public class ConversationApplicationService {
             }
 
             // 直接创建会话
-            boolean isOwnerSession = Boolean.TRUE.equals(request.getIsOwner());
+            boolean isOwnerSession = !UserContextHolder
+                    .getContext()
+                    .isGuest();
 
             // 创建会话配置
             SessionMeta sessionConfig = SessionMeta
                     .builder()
-                    .characterId(request.getCharacterId())
+                    .personaId(request.getCharacterId())
                     .mode(mode)
                     .isOwnerSession(isOwnerSession)
                     .enableMemory(shouldEnableMemory(mode))
@@ -96,11 +101,20 @@ public class ConversationApplicationService {
      */
     public ChatResponse chat(ChatRequest request) {
         try {
-            log.info("处理对话消息，会话ID: {}, 用户: {}, 角色: {}", request.getSessionId(), request.getUserName(),
-                     request.getCharacterId());
-
-            // 直接调用LLM，使用角色对应的ChatClient
-            String aiResponse = callLlmService.sendMessage(request.getSessionId(), request.getCharacterId(), request.getMessage());
+            log.info("处理对话消息，会话ID: {}, 用户: {}, 角色: {}, Agent启用: {}", request.getSessionId(), request.getUserName(),
+                     request.getCharacterId(), request.getEnableAgent());
+            
+            // 确保角色advisor存在
+            requestPlanCreatService.ensure(request.getCharacterId());
+            
+            // 规划请求 - 传递enableAgent参数
+            RequestPlan requestPlan = requestPlanCreatService.planForRequest(
+                    request.getSessionId(), 
+                    request.getCharacterId(), 
+                    Boolean.TRUE.equals(request.getEnableAgent()));
+            
+            // 调用LLM
+            String aiResponse = callLlmService.call(request.getMessage(), requestPlan);
 
             log.info("对话处理成功，会话ID: {}", request.getSessionId());
 
@@ -120,11 +134,20 @@ public class ConversationApplicationService {
      */
     public Flux<String> chatStream(ChatRequest request) {
         try {
-            log.info("处理流式对话消息，会话ID: {}, 用户: {}, 角色: {}", request.getSessionId(), request.getUserName(),
-                     request.getCharacterId());
+            log.info("处理流式对话消息，会话ID: {}, 用户: {}, 角色: {}, Agent启用: {}", request.getSessionId(), request.getUserName(),
+                     request.getCharacterId(), request.getEnableAgent());
 
-            // 直接调用LLM，使用角色对应的ChatClient
-            return callLlmService.sendMessageStream(request.getSessionId(), request.getCharacterId(), request.getMessage());
+            // 确保角色advisor存在
+            requestPlanCreatService.ensure(request.getCharacterId());
+            
+            // 规划请求 - 传递enableAgent参数
+            RequestPlan requestPlan = requestPlanCreatService.planForRequest(
+                    request.getSessionId(), 
+                    request.getCharacterId(), 
+                    Boolean.TRUE.equals(request.getEnableAgent()));
+            
+            // 调用LLM流式响应
+            return callLlmService.callStream(request.getMessage(), requestPlan);
 
         } catch (Exception e) {
             log.error("流式对话处理异常，会话ID: {}", request.getSessionId(), e);
@@ -150,7 +173,7 @@ public class ConversationApplicationService {
                     .sessionId(sessionId)
                     .exists(!session.isArchived())
                     .mode(session.getConfiguration().getMode().getName())
-                    .characterId(session.getConfiguration().getCharacterId())
+                    .characterId(session.getConfiguration().getPersonaId())
                     .isOwnerSession(session.getConfiguration().isOwnerSession())
                     .messageCount(0) // 消息数量由Spring AI Memory管理，这里不再统计
                     .conversationRounds(0) // 轮次计算同样不再需要
@@ -241,11 +264,5 @@ public class ConversationApplicationService {
         return characterId != null && !characterId.trim().isEmpty();
     }
 
-    /**
-     * 判断是否启用工具调用
-     */
-    private boolean shouldEnableTools(ConversationMode mode, boolean isOwnerSession) {
-        return mode == ConversationMode.AGENT && isOwnerSession;
-    }
 
 }

@@ -2,6 +2,7 @@ package org.sounfury.aki.domain.prompt.persona.event;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.sounfury.aki.domain.shared.event.DomainEvent;
 
 import java.time.LocalDateTime;
 
@@ -10,8 +11,7 @@ import java.time.LocalDateTime;
  * 当新角色被创建时触发
  */
 @Getter
-@Builder
-public class CharacterCreated {
+public class CharacterCreated extends DomainEvent {
     
     /**
      * 角色ID
@@ -32,4 +32,13 @@ public class CharacterCreated {
      * 事件时间戳
      */
     private final LocalDateTime timestamp;
+    
+    @Builder
+    public CharacterCreated(String characterId, String characterName, String description, LocalDateTime timestamp) {
+        super("CharacterCreated");
+        this.characterId = characterId;
+        this.characterName = characterName;
+        this.description = description;
+        this.timestamp = timestamp;
+    }
 }

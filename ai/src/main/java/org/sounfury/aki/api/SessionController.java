@@ -1,12 +1,20 @@
 package org.sounfury.aki.api;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.application.session.dto.*;
 import org.sounfury.aki.application.session.service.SessionApplicationService;
+import org.sounfury.aki.infrastructure.shared.context.UserContextHolder;
+import org.sounfury.core.convention.result.Result;
+import org.sounfury.core.convention.result.Results;
+import org.sounfury.core.convention.exception.ClientException;
+import org.sounfury.core.convention.exception.ServiceException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai/sessions")
+@SaIgnore
 public class SessionController {
 
     private final SessionApplicationService sessionApplicationService;
@@ -28,11 +37,12 @@ public class SessionController {
      * @return Session列表
      */
     @GetMapping("/by-character/{characterId}")
-    public SessionListResponse getSessionsByCharacterId(
+    public Result<SessionListResponse> getSessionsByCharacterId(
             @PathVariable String characterId,
             @RequestParam(defaultValue = "false") Boolean isOwner) {
         log.debug("查询角色Session列表: characterId={}, isOwner={}", characterId, isOwner);
-        return sessionApplicationService.getSessionsByCharacterId(characterId, isOwner);
+        isOwner = Boolean.TRUE;
+        return Results.success(sessionApplicationService.getSessionsByCharacterId(characterId, isOwner));
     }
 
     /**
@@ -41,10 +51,10 @@ public class SessionController {
      * @return 已归档Session列表
      */
     @GetMapping("/archived")
-    public SessionListResponse getArchivedSessions(
+    public Result<SessionListResponse> getArchivedSessions(
             @RequestParam(defaultValue = "false") Boolean isOwner) {
         log.debug("查询已归档Session列表: isOwner={}", isOwner);
-        return sessionApplicationService.getArchivedSessions(isOwner);
+        return Results.success(sessionApplicationService.getArchivedSessions(isOwner));
     }
 
     /**
@@ -70,24 +80,53 @@ public class SessionController {
     /**
      * 根据sessionId加载会话详情（基础信息+最新10条记忆）
      * @param sessionId 会话ID
+     * @param cursor 游标时间戳，用于分页加载，null表示加载最新记录
      * @return 会话详情
      */
     @GetMapping("/{sessionId}/detail")
-    public SessionDetailResponse getSessionDetail(@PathVariable String sessionId) {
-        log.debug("加载会话详情: sessionId={}", sessionId);
-        return sessionApplicationService.getSessionDetail(sessionId);
+    public Result<SessionDetailResponse> getSessionDetail(
+            @PathVariable String sessionId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")LocalDateTime cursor) {
+        log.debug("加载会话详情: sessionId={}, cursor={}", sessionId, cursor);
+        return Results.success(sessionApplicationService.getSessionDetail(sessionId, cursor));
     }
 
+//    /**
+//     * 分页查询Session记忆
+//     * @param request 分页查询请求
+//     * @return 记忆列表
+//     */
+//    @PostMapping("/memories/page")
+//    public List<SessionDetailResponse.MemoryItem> getSessionMemories(
+//            @Valid @RequestBody SessionMemoryPageRequest request) {
+//        log.debug("分页查询Session记忆: sessionId={}, cursor={}, limit={}",
+//                request.getSessionId(), request.getCursor(), request.getLimit());
+//        return sessionApplicationService.getSessionMemories(request);
+//    }
+
     /**
-     * 分页查询Session记忆
-     * @param request 分页查询请求
-     * @return 记忆列表
+     * 删除Session及其相关记忆
+     * 根据用户角色执行不同的删除策略：
+     * - 游客：仅删除Redis中的会话数据
+     * - 站长：删除Redis + 数据库会话 + 级联删除相关记忆
+     * @param sessionId 会话ID
+     * @return 删除结果
      */
-    @PostMapping("/memories/page")
-    public List<SessionDetailResponse.MemoryItem> getSessionMemories(
-            @Valid @RequestBody SessionMemoryPageRequest request) {
-        log.debug("分页查询Session记忆: sessionId={}, cursor={}, limit={}", 
-                request.getSessionId(), request.getCursor(), request.getLimit());
-        return sessionApplicationService.getSessionMemories(request);
+    @DeleteMapping("/{sessionId}")
+    public Result<Void> deleteSession(@PathVariable String sessionId) {
+
+        try {
+            // 调用应用服务删除Session
+            sessionApplicationService.deleteSession(sessionId);
+            log.info("删除Session成功: sessionId={}", sessionId);
+            return Results.success();
+            
+        } catch (IllegalArgumentException e) {
+            log.warn("删除Session失败，参数错误: sessionId={}, error={}", sessionId, e.getMessage());
+            throw new ClientException(e.getMessage());
+        } catch (Exception e) {
+            log.error("删除Session失败: sessionId={}", sessionId, e);
+            throw new ServiceException("删除Session失败: " + e.getMessage());
+        }
     }
 }

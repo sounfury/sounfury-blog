@@ -26,12 +26,14 @@ import java.util.Map;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    private final long DEFAULT_CATEGORY_ID = 1L;
+
     /**
      * 更新分类
      */
     @PutMapping()
     public Result<Void> updateCategory(@RequestBody Category categoryUpdateReq) {
-        if (categoryUpdateReq.getId() == 1 && categoryUpdateReq.getPid() != null) {
+        if (categoryUpdateReq.getId() == DEFAULT_CATEGORY_ID && categoryUpdateReq.getPid() != null) {
             return Results.failure(new ClientException("默认分类不能修改父分类"));
         }
         categoryService.updateCategory(categoryUpdateReq);

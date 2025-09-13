@@ -90,10 +90,14 @@ public class SessionRepositoryImpl extends SessionDao implements SessionReposito
                     .selectFrom(SPRING_AI_CHAT_MEMORY)
                     .where(SPRING_AI_CHAT_MEMORY.CONVERSATION_ID.eq(sessionId.getValue()));
 
-            // 添加游标条件
-            if (cursor != null) {
-                query = query.and(SPRING_AI_CHAT_MEMORY.TIMESTAMP.lt(cursor));
+            if(cursor==null) {
+                // 查询最新记录
+                cursor = java.time.LocalDateTime.now();
             }
+            // 添加游标条件
+
+            query = query.and(SPRING_AI_CHAT_MEMORY.TIMESTAMP.lt(cursor));
+
 
             List<SpringAiChatMemoryPojo> memoryPojos = query
                     .orderBy(SPRING_AI_CHAT_MEMORY.TIMESTAMP.desc())
@@ -135,6 +139,35 @@ public class SessionRepositoryImpl extends SessionDao implements SessionReposito
             redisSessionService.deleteSession(sessionId);
             deleteFromDatabase(sessionId);
             log.debug("站长会话已从Redis和数据库删除: sessionId={}", sessionId.getValue());
+        }
+    }
+
+    @Override
+    public void deleteWithMemories(SessionId sessionId) {
+        if (sessionId.isGuestSession()) {
+            // 游客会话：仅删除Redis中的会话数据
+            redisSessionService.deleteSession(sessionId);
+            log.info("游客会话已删除: sessionId={}", sessionId.getValue());
+        } else {
+            // 站长会话：删除Redis + 数据库会话 + 级联删除相关记忆
+            try {
+                // 1. 删除Redis中的会话
+                redisSessionService.deleteSession(sessionId);
+                log.debug("站长会话已从Redis删除: sessionId={}", sessionId.getValue());
+
+                // 2. 级联删除数据库中的相关记忆
+                deleteSessionMemoriesFromDatabase(sessionId);
+                log.debug("站长会话相关记忆已删除: sessionId={}", sessionId.getValue());
+
+                // 3. 删除数据库中的会话
+                deleteFromDatabase(sessionId);
+                log.debug("站长会话已从数据库删除: sessionId={}", sessionId.getValue());
+
+                log.info("站长会话及相关记忆已完全删除: sessionId={}", sessionId.getValue());
+            } catch (Exception e) {
+                log.error("删除站长会话及相关记忆失败: sessionId={}", sessionId.getValue(), e);
+                throw new RuntimeException("删除会话失败", e);
+            }
         }
     }
 
@@ -190,7 +223,7 @@ public class SessionRepositoryImpl extends SessionDao implements SessionReposito
     private void saveToDatabase(Session session) {
         try {
             SessionPojo pojo = fromDomain(session);
-
+            log.info(pojo.toString());
             if (existsById(session.getSessionId().getValue())) {
                 update(pojo);
                 log.debug("更新会话到数据库: sessionId={}", session.getSessionId().getValue());
@@ -248,6 +281,22 @@ public class SessionRepositoryImpl extends SessionDao implements SessionReposito
         }
     }
 
+    /**
+     * 从数据库删除会话相关记忆
+     */
+    private void deleteSessionMemoriesFromDatabase(SessionId sessionId) {
+        try {
+            int deletedCount = ctx()
+                    .deleteFrom(SPRING_AI_CHAT_MEMORY)
+                    .where(SPRING_AI_CHAT_MEMORY.CONVERSATION_ID.eq(sessionId.getValue()))
+                    .execute();
+            log.debug("从数据库删除会话记忆: sessionId={}, 删除数量={}", sessionId.getValue(), deletedCount);
+        } catch (Exception e) {
+            log.error("从数据库删除会话记忆失败: sessionId={}", sessionId.getValue(), e);
+            throw new RuntimeException("从数据库删除会话记忆失败", e);
+        }
+    }
+
     // ========== 领域对象转换方法 ==========
 
     /**
@@ -285,6 +334,7 @@ public class SessionRepositoryImpl extends SessionDao implements SessionReposito
         if (session == null) {
             return null;
         }
+
 
         SessionPojo pojo = new SessionPojo();
         pojo.setSessionId(session.getSessionId().getValue());

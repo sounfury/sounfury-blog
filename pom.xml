@@ -19,10 +19,10 @@
 
     <properties>
         <revision>0.0.1</revision>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
         <spring-boot.version>3.3.8</spring-boot.version>
         <jjwt.version>0.9.1</jjwt.version>
         <fastjson2.version>2.0.52</fastjson2.version>
@@ -43,6 +43,8 @@
 
         <!-- 验证码 -->
         <kaptcha.version>2.3.2</kaptcha.version>
+
+        <uuidv7.version>5.3.0</uuidv7.version>
 
     </properties>
 
@@ -151,6 +153,13 @@
                 <artifactId>kaptcha</artifactId>
                 <version>${kaptcha.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.github.f4b6a3</groupId>
+                <artifactId>uuid-creator</artifactId>
+                <version>${uuidv7.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

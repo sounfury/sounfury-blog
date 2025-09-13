@@ -1,5 +1,7 @@
 package org.sounfury.aki.infrastructure.shared.context;
 
+import cn.dev33.satoken.stp.StpUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,6 +19,7 @@ public class UserContextHolder {
      */
     public static void setContext(UserContext context) {
         contextHolder.set(context);
+
         log.debug("设置用户上下文: {}", context);
     }
 
@@ -62,68 +65,40 @@ public class UserContextHolder {
         return getContext().getRole();
     }
 
-    // ========== 开发阶段的静态方法 ==========
-
-    /**
-     * 开发阶段：设置为站长身份
-     */
-    public static void setAsOwner() {
-        setContext(UserContext.owner("dev-owner-001", "开发站长"));
-        log.info("开发模式：设置为站长身份");
-    }
-
-    /**
-     * 开发阶段：设置为游客身份
-     */
-    public static void setAsGuest() {
-        setContext(UserContext.guest());
-        log.info("开发模式：设置为游客身份");
-    }
-
-    /**
-     * 开发阶段：设置为指定用户
-     */
-    public static void setAsUser(String userId, String userName, UserRole role) {
-        setContext(UserContext.of(userId, userName, role));
-        log.info("开发模式：设置为用户身份 - userId: {}, role: {}", userId, role);
-    }
-
     /**
      * 用户上下文信息
      */
     public static class UserContext {
+        @Getter
         private final String userId;
         private final String userName;
+        @Getter
         private final UserRole role;
+        private final String token;
 
-        private UserContext(String userId, String userName, UserRole role) {
+        private UserContext(String userId, String userName, UserRole role, String token) {
             this.userId = userId;
             this.userName = userName;
             this.role = role;
+            this.token = token;
         }
 
-        public static UserContext of(String userId, String userName, UserRole role) {
-            return new UserContext(userId, userName, role);
+        public static UserContext of(String userId, String userName, UserRole role, String token) {
+            return new UserContext(userId, userName, role, token);
         }
 
-        public static UserContext owner(String userId, String userName) {
-            return new UserContext(userId, userName, UserRole.OWNER);
+        public static UserContext owner(String userId, String userName, String token) {
+            return new UserContext(userId, userName, UserRole.OWNER, token);
         }
 
         public static UserContext guest() {
-            return new UserContext("guest", "游客", UserRole.GUEST);
+            return new UserContext("guest", "游客", UserRole.GUEST,null);
         }
 
-        public String getUserId() {
-            return userId;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public UserRole getRole() {
-            return role;
+        //获取当前用户的token
+        public static String getToken() {
+            UserContext context = getContext();
+            return context.token;
         }
 
         public boolean isOwner() {
@@ -144,6 +119,7 @@ public class UserContextHolder {
     /**
      * 用户角色枚举
      */
+    @Getter
     public enum UserRole {
         OWNER("站长"),
         GUEST("旅行者"),
@@ -155,8 +131,5 @@ public class UserContextHolder {
             this.displayName = displayName;
         }
 
-        public String getDisplayName() {
-            return displayName;
-        }
     }
 }

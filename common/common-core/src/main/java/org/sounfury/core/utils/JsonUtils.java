@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * JSON 工具类
+ * 报错1：全局用的是
  *
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

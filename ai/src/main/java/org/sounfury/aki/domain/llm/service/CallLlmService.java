@@ -1,5 +1,6 @@
 package org.sounfury.aki.domain.llm.service;
 
+import org.sounfury.aki.contracts.plan.RequestPlan;
 import reactor.core.publisher.Flux;
 
 /**
@@ -7,23 +8,6 @@ import reactor.core.publisher.Flux;
  */
 public interface CallLlmService {
 
-    /**
-     * 发送消息到聊天客户端
-     * @param sessionId 会话ID（用于记忆advisor）
-     * @param characterId 角色ID（用于获取对应的ChatClient）
-     * @param message 发送的消息内容
-     * @return 响应内容
-     */
-    String sendMessage(String sessionId, String characterId, String message);
-
-
-    /**
-     * 发送消息到聊天客户端，并返回响应流
-     * @param sessionId
-     * @param message
-     * @return
-     */
-    Flux<String> sendMessageStream(String sessionId,String characterId, String message);
 
     /**
      * 发送任务消息到任务客户端
@@ -40,5 +24,21 @@ public interface CallLlmService {
      * @return 流式响应
      */
     Flux<String> sendTaskMessageStream(String taskSpecificPrompt, String userMessage);
+
+    /**
+     * 调用LLM，接受RequestPlan参数
+     * @param message 用户消息
+     * @param requestPlan 请求计划（包含会话信息、记忆设置、工具配置等）
+     * @return 响应内容
+     */
+    String call(String message, RequestPlan requestPlan);
+
+    /**
+     * 调用LLM，接受RequestPlan参数，返回流式响应
+     * @param message 用户消息
+     * @param requestPlan 请求计划（包含会话信息、记忆设置、工具配置等）
+     * @return 流式响应
+     */
+    Flux<String> callStream(String message, RequestPlan requestPlan);
 
 }

@@ -1,5 +1,6 @@
 package org.sounfury.aki.application.session.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
@@ -106,6 +107,8 @@ public class SessionDetailResponse {
         /**
          * 时间戳
          */
+        //格式化为yyyy-MM-dd HH:mm:ss
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime timestamp;
     }
 }

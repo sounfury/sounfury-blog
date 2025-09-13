@@ -6,6 +6,8 @@ import org.sounfury.aki.domain.prompt.persona.Persona;
 
 import org.sounfury.aki.domain.prompt.context.PromptContext;
 import org.sounfury.aki.domain.prompt.AssembledPrompt;
+import org.sounfury.aki.domain.prompt.SystemPrompt;
+import org.sounfury.aki.domain.prompt.CharacterPrompt;
 import org.springframework.stereotype.Service;
 
 import java.util.StringJoiner;
@@ -69,31 +71,73 @@ public class PromptAssemblyService {
     // ========== 组装方法 ==========
 
     /**
-     * 为对话组装完整的提示词
-     * 使用Handlebars模板和对象占位符
+     * 为对话组装系统级提示词
+     * 包含基础系统提示词、行为指导、用户称呼等
      */
-    public AssembledPrompt assembleConversationPrompt(Persona persona, String behaviorType) {
-        log.debug("组装对话提示词: userName={}, characterId={}, behaviorType={}",
-                   persona != null ? persona
-                        .getId().getValue() : "null", behaviorType);
+    public SystemPrompt assembleSystemPrompt(String behaviorType) {
+        log.debug("组装系统提示词: behaviorType={}", behaviorType);
 
-        // 构建渲染上下文
-        PromptContext context = promptRenderService.buildUserCharContext(persona);
+        // 构建基础上下文（不包含角色信息）
+        PromptContext context = promptRenderService.buildBaseContext();
 
-        // 渲染各部分
+        // 渲染系统级提示词
         String baseSystemPrompt = promptRenderService.renderForKey(SystemKeys.BASE, context);
         String behaviorPrompt = promptRenderService.renderForKey(getBehaviorKey(behaviorType), context);
-        String characterPrompt = buildCharacterPrompt(context);
-//        String userAddressPrompt = promptRenderService.renderForKey(UserKeys.ADDRESS, context);
+        String userAddressPrompt = promptRenderService.renderForKey(UserKeys.ADDRESS, context);
 
-        // 组装结果
-        AssembledPrompt result = AssembledPrompt.builder()
+        // 组装系统提示词结果
+        SystemPrompt result = SystemPrompt.builder()
                 .baseSystemPrompt(baseSystemPrompt)
                 .behaviorGuidePrompt(behaviorPrompt)
+                .userAddressPrompt(userAddressPrompt)
+                .build();
+
+        log.debug("系统提示词组装完成");
+        return result;
+    }
+
+    /**
+     * 为对话组装角色级提示词
+     * 包含角色卡、世界书、示例对话等
+     */
+    public CharacterPrompt assembleCharacterPrompt(Persona persona) {
+        log.debug("组装角色提示词: characterId={}", 
+                persona != null ? persona.getId().getValue() : "null");
+
+        // 构建角色上下文
+        PromptContext context = promptRenderService.buildUserCharContext(persona);
+
+        // 构建角色卡提示词
+        String characterPrompt = buildCharacterPrompt(context);
+
+        // 组装角色提示词结果
+        CharacterPrompt result = CharacterPrompt.builder()
                 .characterPrompt(characterPrompt)
                 .build();
 
-        log.debug("对话提示词组装完成");
+        log.debug("角色提示词组装完成");
+        return result;
+    }
+
+    /**
+     * 为对话组装完整的提示词
+     * 内聚SystemPrompt和CharacterPrompt
+     */
+    public AssembledPrompt assemblePersonaPrompt(Persona persona, String behaviorType) {
+        log.debug("组装完整对话提示词: characterId={}, behaviorType={}",
+                persona != null ? persona.getId().getValue() : "null", behaviorType);
+
+        // 分别组装系统和角色提示词
+        SystemPrompt systemPrompt = assembleSystemPrompt(behaviorType);
+        CharacterPrompt characterPrompt = assembleCharacterPrompt(persona);
+
+        // 内聚为AssembledPrompt
+        AssembledPrompt result = AssembledPrompt.builder()
+                .systemPrompt(systemPrompt)
+                .characterPrompt(characterPrompt)
+                .build();
+
+        log.debug("完整对话提示词组装完成");
         return result;
     }
 
@@ -122,21 +166,16 @@ public class PromptAssemblyService {
      * 通用任务提示词组装方法
      */
     public AssembledPrompt assembleBaseTaskPrompt(Persona persona) {
-        log.debug("组装任务提示词: userName={}, characterId={}",
-                   persona != null ? persona.getId().getValue() : "null");
+        log.debug("组装任务提示词: characterId={}",
+                persona != null ? persona.getId().getValue() : "null");
 
-        // 构建渲染上下文
-        PromptContext context = promptRenderService.buildUserCharContext(persona);
-        String characterPrompt = buildCharacterPrompt(context);
-        // 渲染各部分
-        String baseSystemPrompt = promptRenderService.renderForKey(SystemKeys.BASE, context);
-        String behaviorPrompt = promptRenderService.renderForKey(getBehaviorKey(BehaviorKeys.TASK), context);
+        // 使用分离的组装方法
+        SystemPrompt systemPrompt = assembleSystemPrompt(BehaviorKeys.TASK);
+        CharacterPrompt characterPrompt = assembleCharacterPrompt(persona);
 
-
-        // 组装结果
+        // 内聚为AssembledPrompt
         return AssembledPrompt.builder()
-                .baseSystemPrompt(baseSystemPrompt)
-                .behaviorGuidePrompt(behaviorPrompt)
+                .systemPrompt(systemPrompt)
                 .characterPrompt(characterPrompt)
                 .build();
     }

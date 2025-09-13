@@ -45,6 +45,14 @@ public interface SessionRepository {
     void delete(SessionId sessionId);
 
     /**
+     * 删除会话及其相关记忆
+     * 游客会话：仅删除Redis中的会话数据
+     * 站长会话：删除Redis + 数据库会话 + 级联删除相关记忆
+     * @param sessionId 会话ID
+     */
+    void deleteWithMemories(SessionId sessionId);
+
+    /**
      * 查找用户的未归档会话
      * @param isOwnerSession 是否是站长会话
      * @return 未归档会话列表

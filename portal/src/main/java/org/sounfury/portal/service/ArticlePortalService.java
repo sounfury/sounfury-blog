@@ -52,4 +52,11 @@ public interface ArticlePortalService {
     List<PageArticleRep> pageQueryArticleTest(PageReqDto pageReqDto);
 
     List<HistoryCount> historyArticleCount();
+
+    /**
+     * 根据标题模糊查询文章
+     * @param titleKeyword 标题关键词
+     * @return 文章列表
+     */
+    List<PageArticleRep> searchArticlesByTitle(String titleKeyword);
 }

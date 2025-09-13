@@ -98,6 +98,21 @@ public class ArticlePortalServiceImpl implements ArticlePortalService {
         return historyCounts;
     }
 
+    @Override
+    public List<PageArticleRep> searchArticlesByTitle(String titleKeyword) {
+        List<PageArticleRep> articles = articleRepository.searchArticlesByTitle(titleKeyword);
+        articles.forEach(pageArticleRep -> {
+            Category category = categoryRepository.fetchOneById(pageArticleRep.getCategoryId());
+            List<TagPortalDto> tagPortalDtoList = tagRepository.fetchByArticleId(pageArticleRep.getId())
+                    .stream()
+                    .map(tag -> new TagPortalDto(tag.getId(), tag.getName()))
+                    .toList();
+            pageArticleRep.setTags(tagPortalDtoList);
+            pageArticleRep.setCategory(new ArticleCategoryDto(category.getId(), category.getName()));
+        });
+        return articles;
+    }
+
     @NotNull
     private PageRepDto<List<PageArticleRep>> getPageTagsAndCategory(PageRepDto<List<PageArticleRep>> listPageRepDto) {
         if (listPageRepDto.getData() != null) {

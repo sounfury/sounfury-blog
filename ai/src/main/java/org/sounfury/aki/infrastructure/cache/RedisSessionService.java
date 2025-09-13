@@ -1,8 +1,12 @@
 package org.sounfury.aki.infrastructure.cache;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.JSON;
 import org.sounfury.aki.domain.conversation.session.Session;
 import org.sounfury.aki.domain.conversation.session.SessionId;
+import org.sounfury.aki.domain.conversation.session.SessionMeta;
+import org.sounfury.aki.jooq.tables.pojos.SessionPojo;
+import org.sounfury.core.utils.JsonUtils;
 import org.sounfury.utils.RedisUtils;
 import org.springframework.stereotype.Service;
 
@@ -39,15 +43,16 @@ public class RedisSessionService {
     public void saveSession(Session session) {
         try {
             String sessionKey = buildSessionKey(session.getSessionId());
+            SessionPojo sessionPojo = fromDomain(session);
 
             if (session.getSessionId().isGuestSession()) {
                 // 游客会话：30分钟TTL
-                RedisUtils.setCacheObject(sessionKey, session, GUEST_SESSION_TTL);
+                RedisUtils.setCacheObject(sessionKey, sessionPojo, GUEST_SESSION_TTL);
                 log.debug("游客会话已保存到Redis: sessionId={}, ttl={}分钟",
                         session.getSessionId().getValue(), GUEST_SESSION_TTL.toMinutes());
             } else {
                 // 站长会话：永不过期
-                RedisUtils.setCacheObject(sessionKey, session);
+                RedisUtils.setCacheObject(sessionKey, sessionPojo);
                 log.debug("站长会话已保存到Redis: sessionId={}, 永不过期",
                         session.getSessionId().getValue());
             }
@@ -74,14 +79,14 @@ public class RedisSessionService {
     public Optional<Session> findSession(SessionId sessionId) {
         try {
             String sessionKey = buildSessionKey(sessionId);
-            System.out.println("Redis Key: " + sessionKey);
-            Session session = RedisUtils.getCacheObject(sessionKey);
+            SessionPojo sessionPojo = RedisUtils.getCacheObject(sessionKey);
 
-            if (session == null) {
+            if (sessionPojo == null) {
                 log.info("Redis中未找到会话: sessionId={}", sessionId.getValue());
                 return Optional.empty();
             }
 
+            Session session = toDomain(sessionPojo);
             String sessionType = sessionId.isGuestSession() ? "游客" : "站长";
             log.debug("从Redis获取{}会话成功: sessionId={}", sessionType, sessionId.getValue());
             return Optional.of(session);
@@ -138,27 +143,6 @@ public class RedisSessionService {
     }
 
     /**
-     * 检查游客会话是否存在（兼容方法）
-     */
-    public boolean existsGuestSession(SessionId sessionId) {
-        return existsSession(sessionId);
-    }
-
-    /**
-     * 删除游客会话（兼容方法）
-     */
-    public void deleteGuestSession(SessionId sessionId) {
-        deleteSession(sessionId);
-    }
-
-    /**
-     * 获取游客会话剩余TTL（兼容方法）
-     */
-    public long getGuestSessionTTL(SessionId sessionId) {
-        return getSessionTTL(sessionId);
-    }
-
-    /**
      * 判断是否为游客会话ID
      * @param sessionId 会话ID
      * @return 是否为游客会话
@@ -175,6 +159,81 @@ public class RedisSessionService {
             return GUEST_SESSION_PREFIX + sessionId.getValue();
         } else {
             return OWNER_SESSION_PREFIX + sessionId.getValue();
+        }
+    }
+
+    // ========== 领域对象转换方法 ==========
+
+    /**
+     * 将领域对象转换为数据库POJO
+     */
+    private SessionPojo fromDomain(Session session) {
+        if (session == null) {
+            return null;
+        }
+
+        SessionPojo pojo = new SessionPojo();
+        pojo.setSessionId(session.getSessionId().getValue());
+        pojo.setSessionMeta(serializeSessionMeta(session.getConfiguration()));
+        pojo.setCreateTime(session.getCreatedAt());
+        pojo.setLastActiveTime(session.getLastActiveAt());
+        pojo.setPersonaid(session.getPersonaId());
+        pojo.setIsArchived(session.isArchived() ? (byte) 1 : (byte) 0);
+
+        return pojo;
+    }
+
+    /**
+     * 将数据库POJO转换为领域对象
+     */
+    private Session toDomain(SessionPojo pojo) {
+        if (pojo == null) {
+            return null;
+        }
+
+        try {
+            // 解析SessionMeta JSON
+            SessionMeta sessionMeta = parseSessionMeta(pojo.getSessionMeta());
+
+            // 创建SessionId
+            SessionId sessionId = SessionId.of(pojo.getSessionId());
+
+            // 使用fromDatabase方法重建Session对象
+            boolean isArchived = pojo.getIsArchived() != null && pojo.getIsArchived() == 1;
+            Session session = Session.fromDatabase(sessionId, sessionMeta,
+                    pojo.getCreateTime(), pojo.getLastActiveTime(),
+                    pojo.getPersonaid(), isArchived);
+
+            return session;
+        } catch (Exception e) {
+            log.error("转换SessionPojo到领域对象失败: sessionId={}", pojo.getSessionId(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 解析SessionMeta JSON
+     */
+    private SessionMeta parseSessionMeta(JSON json) {
+        try {
+            String jsonString = json.data();
+            return JsonUtils.parseObject(jsonString, SessionMeta.class);
+        } catch (Exception e) {
+            log.error("解析SessionMeta JSON失败: {}", json, e);
+            throw new RuntimeException("解析SessionMeta JSON失败", e);
+        }
+    }
+
+    /**
+     * 序列化SessionMeta为JSON
+     */
+    private JSON serializeSessionMeta(SessionMeta sessionMeta) {
+        try {
+            String jsonString = JsonUtils.toJsonString(sessionMeta);
+            return JSON.valueOf(jsonString);
+        } catch (Exception e) {
+            log.error("序列化SessionMeta为JSON失败: {}", sessionMeta, e);
+            throw new RuntimeException("序列化SessionMeta为JSON失败", e);
         }
     }
 }

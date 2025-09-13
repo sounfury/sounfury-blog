@@ -1,5 +1,6 @@
 package org.sounfury.aki.api;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sounfury.aki.application.task.service.TaskApplicationService;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/ai/action")
+@SaIgnore
 public class TaskController {
 
     private final TaskApplicationService taskApplicationService;
@@ -26,7 +28,7 @@ public class TaskController {
      * @param articleId 文章ID
      * @return 总结结果
      */
-    @PostMapping("/summarize/article/{articleId}")
+    @GetMapping("/summarize/article/{articleId}")
     public Result<TaskResponse> summarizeArticle(@PathVariable Long articleId) {
         try {
             log.info("总结文章请求，文章ID: {}", articleId);
