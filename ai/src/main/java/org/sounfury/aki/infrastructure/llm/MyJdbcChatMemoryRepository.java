@@ -25,7 +25,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-
+/**
+ * 原有的 ChatMemoryRepository存在对话后更新历史对话的时间为最新时间的bug,这里使用自定义的repository避免
+ *
+ */
 public class MyJdbcChatMemoryRepository implements ChatMemoryRepository {
     private final JdbcTemplate jdbcTemplate;
     private final TransactionTemplate transactionTemplate;

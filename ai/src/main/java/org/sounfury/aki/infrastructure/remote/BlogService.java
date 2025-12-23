@@ -36,7 +36,7 @@ public class BlogService {
         };
 
         this.webClient = builder
-                .baseUrl("http://localhost:8080") // 你用的是相对URI，建议配上
+                .baseUrl("http://localhost:8080") 
                 .filter(tokenFilter)
                 .build();
     }

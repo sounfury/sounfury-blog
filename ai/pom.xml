@@ -132,7 +132,7 @@
                 <configuration>
                     <jdbc>
                         <driver>com.mysql.cj.jdbc.Driver</driver>
-                        <url>jdbc:mysql://39.105.125.7:3306/aki?useUnicode=true&amp;characterEncoding=UTF-8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai</url>
+                        <url>jdbc:mysql://127.0.0.1:3306/aki?useUnicode=true&amp;characterEncoding=UTF-8&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai</url>
                         <user>root</user>
                         <password>a2133266</password>
                     </jdbc>
